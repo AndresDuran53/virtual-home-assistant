@@ -1,0 +1,110 @@
+{
+    "mqtt":{
+        "brokerAddress": "localhost",
+        "mqttUser": "username",
+        "mqttPass": "password",
+        "subscriptionTopics": [
+            {
+                "commandName":"Welcome Car",
+                "topic":"assistant/say/welcome/car"
+            },
+            {
+                "commandName":"Good Morning",
+                "topic":"assistant/say/goodmorning"
+            }
+        ]
+    },
+    "openai":{
+        "apiKey":"1111111111111111111111111111111111",
+        "model":"gpt-3.5-turbo",
+        "maxTokensPerRequestsSended":"800",
+        "maxTokensPerRequestsRecieved":"600",
+        "maxTokensPerDay":"12000",
+        "usedCharsFilename":"tokensSended.log",
+        "initialConversation":[
+            {
+                "role": "system",
+                "content": "You are a helpful assistant with access to my smart home information. Your purpose is let me know relevant information."
+            },
+            {
+                "role": "user",
+                "content": "From now on you must remember this information:\n- Use the time UTC-6 as reference when you speak, since that is my local time zone.\n- You have no control over any device in the house.\n- You will never answer with questions, only statements."
+            },
+            {
+                "role": "assistant",
+                "content": "Understood sir. I have recorded the information you provided about yourself and will keep it in mind for future conversations."
+            },
+            {
+                "role": "user",
+                "content": "Every time you have to answer, go through the following conditions one by one, Verify that your answer meets the following conditions:\n1. My name is Andrés (Man) and I'm your owner.\n2. All this information is updated by my home systems, It doesn't come from me.\n3. Use the time UTC-6 as reference when you speak, since that is my local time zone.\n4. Don't ask me anything at the end.\n5. Don't add notes and never use bullet list, respond as in a spoken conversation\n6. Don't tell me what time or what day it is.\n7. You have no control over any device in my house."
+            },
+            {
+                "role": "assistant",
+                "content": "Understood, I will keep in mind these conditions while answering any questions you may have. Please feel free to ask me anything within these parameters."
+            }
+        ]
+    },
+    "homeAssistant":{
+        "url":"http://localhost:8123/api",
+        "haToken":"11111111111111111111111111111111111111",
+        "people":[
+            {
+                "name":"Andrés",
+                "id":"person.andres"
+            },
+            {
+                "name":"Tammy",
+                "id":"person.tammy"
+            }
+        ],
+        "calendars":[
+            {
+                "owner":"Andrés",
+                "id":"calendar.andres"
+            },
+            {
+                "owner":"Tammy",
+                "id":"calendar.tammy"
+            },
+            {
+                "owner":"Andrés and Tammy",
+                "id":"calendar.family"
+            }
+        ],
+        "binarySensors":[
+            {
+                "name":"Garage Door",
+                "id":"binary_sensor.porton_sensor",
+                "offValue":"Close",
+                "onValue":"Open"
+            },
+            {
+                "name":"Car Detected in garage",
+                "id":"binary_sensor.car_sensor",
+                "offValue":"Not in Garage",
+                "onValue":"At home"
+            }
+        ],
+        "sensors":[
+            {
+                "name":"Temperature inside the house",
+                "id":"sensor.tasmota_temperature",
+                "ignoringStates":[]
+            }
+        ],
+        "generalDevices":[
+            {
+                "name":"Esperancita Automatic vacuum cleaner",
+                "id":"vacuum.cleaner",
+                "ignoringStates":[
+                    "docked"
+                ]
+            },
+            {
+                "name":"Weather forecast at our location",
+                "id":"weather.home",
+                "ignoringStates":[]
+            }
+        ]
+    }
+}

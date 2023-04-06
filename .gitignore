@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Custom
+secrets.py
+assistant.log
+tokensSended.txt
+data/configuration.json
+data/tokensSended.txt
+output/
