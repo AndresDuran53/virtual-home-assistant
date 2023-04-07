@@ -32,6 +32,6 @@ class DataManager:
     def get_important_devices(self):
         final_list = []
         final_list += self.get_sensors_information()
-        final_list += self.get_general_devices_information()
+        final_list += [general_device for general_device in self.general_devices_information if not (general_device.needs_to_be_ignore())]
         return final_list
 

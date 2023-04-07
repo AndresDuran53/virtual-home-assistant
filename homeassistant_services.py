@@ -32,7 +32,7 @@ class HomeAssistantServices:
 
         self.general_devices = []
         for general_device_aux in list_general_devices:
-            self.general_devices.append(GeneralDevice(general_device_aux["id"],general_device_aux["name"],general_device_aux["ignoringStates"]))
+            self.general_devices.append(GeneralDevice(general_device_aux["id"],general_device_aux["name"],ignoring_states = general_device_aux["ignoringStates"]))
 
     def update_data(self):
         self.last_data=self.requests_general_data()
@@ -55,7 +55,7 @@ class HomeAssistantServices:
     def get_general_devices(self,data=None):
         if(data == None): data = self.last_data
         self.update_general_devices(data)
-        return GeneralDevice.exclude_non_important_from_list(self.general_devices)
+        return self.general_devices
 
     def requests_general_data(self):
         headers = {
