@@ -24,6 +24,7 @@ class OpenAIGPT3:
                 max_tokens=self.max_tokens_per_requests_recieved,
                 presence_penalty = 0.2,
                 frequency_penalty = 0.5,
+                temperature = 0.8,
                 request_timeout=10,
                 messages=conversation
             )
