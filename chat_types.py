@@ -26,7 +26,7 @@ class WelcomeChat():
     @classmethod
     def text_from_list(cls,status_list):
         now = datetime.now() 
-        actual_time_string = now.strftime("Forget the datetime you have, use this time as the current system time: %A %b %d, %Y at %I:%M%p")
+        actual_time_string = now.strftime("Forget the datetime you have, use this time as the current system datetime: %A %b %d, %Y at %I:%M%p")
         text = f"- {actual_time_string}"
         for element in status_list:
             if(element.to_text() != ""):
@@ -64,7 +64,7 @@ class GoodMorningChat():
     @classmethod
     def text_from_list(cls,status_list):
         now = datetime.now() 
-        actual_time_string = now.strftime("Forget the datetime you have, use this time as the current system time: %A %b %d, %Y at %I:%M%p")
+        actual_time_string = now.strftime("Forget the datetime you have, use this time as the current system datetime: %A %b %d, %Y at %I:%M%p")
         text = f"- {actual_time_string}"
         for element in status_list:
             if(element.to_text() != ""):
