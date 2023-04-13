@@ -16,32 +16,43 @@ class OpenAIGPT3:
         self.encoding = tiktoken.encoding_for_model(self.model)
         self.initial_conversation = initial_conversation
         self.logger = CustomLogging("logs/assistant.log")
+
+    def request_response(self,conversation):
+        attempt_counter=0
+        _error = None
+        while(attempt_counter<3):
+            try:
+                attempt_counter+=1
+                response = openai.ChatCompletion.create(
+                    model=self.model,
+                    max_tokens=self.max_tokens_per_requests_recieved,
+                    presence_penalty = 0.2,
+                    frequency_penalty = 0.5,
+                    temperature = 0.9,
+                    request_timeout=15,
+                    messages=conversation
+                )
+                return response,None
+            except OpenAIError as e:
+                if isinstance(e, openai.error.Timeout):
+                    self.logger.error(f"Timeout Error trying to create chat completion (attempt_counter {attempt_counter}): {e}")
+                else:
+                    self.logger.error(f"OpenAIError Error trying to create chat completion (attempt_counter {attempt_counter}: {e}")
+            except e:
+                self.logger.error(f"Unexpected Error trying to create chat completion (attempt_counter {attempt_counter}: {e}")
+        _error = "There is an issue with the artificial intelligence language model."
+        return None,_error
         
     def generate_conversation(self, conversation):
-        try:
-            response = openai.ChatCompletion.create(
-                model=self.model,
-                max_tokens=self.max_tokens_per_requests_recieved,
-                presence_penalty = 0.2,
-                frequency_penalty = 0.5,
-                temperature = 0.8,
-                request_timeout=10,
-                messages=conversation
-            )
-            self.logger.info("Response recieved")
-            # Obtener respuesta de Davinci
-            message = response.choices[0]["message"]["content"]
-            total_tokens = response.usage["total_tokens"]
-            return message,total_tokens
-        except OpenAIError as e:
-            if isinstance(e, openai.error.Timeout):
-                self.logger.error(f"Timeout Error trying to create chat completion: {e}")
-            else:
-                self.logger.error(f"OpenAIError Error trying to create chat completion: {e}")
-            return "There is an issue with the artificial intelligence language model.",0
-        except e:
-            self.logger.error(f"Unexpected Error trying to create chat completion: {e}")
-            return "There is an issue with the artificial intelligence language model.",0
+        total_tokens = 0
+        response,_error = self.request_response(conversation)
+        if(_error is not None):
+            return _error,total_tokens
+        self.logger.info("Response recieved")
+        # Obtener respuesta de Davinci
+        message = response.choices[0]["message"]["content"]
+        total_tokens = response.usage["total_tokens"]
+        return message,total_tokens
             
     def count_token_amount(self,prompt):
         num_tokens = len(self.encoding.encode(prompt))
