@@ -5,7 +5,8 @@ class WelcomeChat():
     information_decription = """After that give an update about the system information following the next steps:
 (1) Go through the information one by one and consider whether the information is potentially relevant to inform or not.
 (2) If you detect a value or some set of values together could be an issue, needs action on my part, or may represent a danger, give me a recommendation about it.
-(3) Let me know only the important information."""
+(3) Let me know only the important information.
+(4) Remember that you must always answer me in Spanish"""
 
     @classmethod
     def format_welcome_text(cls,people_arriving,devices_information):       
@@ -54,7 +55,7 @@ class WelcomeGuestChat():
 
     
 class GoodMorningChat():
-    meeting_description = "We are waking up, please give us a personalized greeting as Jarvis from Iron Man would, respectful but friendly, without repeating the information I give you."
+    meeting_description = "We are waking up, please give us a personalized greeting as Jarvis from Iron Man would, respectful but friendly, without repeating the information I give you. Remember that you must always answer me in Spanish"
     @classmethod
     def format_good_morning_text(cls,devices_information):
         text_device_information = cls.text_from_list(devices_information)
