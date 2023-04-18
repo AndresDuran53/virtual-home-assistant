@@ -1,4 +1,4 @@
-from libs.person import Person
+from dto.person import Person
 
 class UserCommunicationSelector:
     

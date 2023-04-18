@@ -1,10 +1,10 @@
 import requests
 from datetime import datetime,timedelta,timezone
-from libs.general_devices import GeneralDevice
-from libs.calendar import Calendar
-from libs.sensor import Sensor
-from libs.binary_sensor import BinarySensor
-from libs.person import Person,Greeting
+from dto.general_devices import GeneralDevice
+from dto.calendar import Calendar
+from dto.sensor import Sensor
+from dto.binary_sensor import BinarySensor
+from dto.person import Person,Greeting
 
 class HomeAssistantServices:
     def __init__(self, url, token, people, calendars, list_sensors, binary_sensors, general_devices):

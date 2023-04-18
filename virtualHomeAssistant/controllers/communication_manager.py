@@ -1,4 +1,4 @@
-from mqtt_controller import MqttConfig, MqttController
+from services.mqtt_controller import MqttConfig, MqttController
 
 class CommunicationManager:
     def __init__(self, data_config):

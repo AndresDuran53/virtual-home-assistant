@@ -1,5 +1,5 @@
-from homeassistant_services import HomeAssistantServices
-from libs.person import Person
+from services.homeassistant_services import HomeAssistantServices
+from dto.person import Person
 
 class DataManager:
     def __init__(self,data_config):

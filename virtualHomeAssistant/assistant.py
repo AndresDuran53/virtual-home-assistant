@@ -1,12 +1,12 @@
 import time
-from custom_logging import CustomLogging
-from configuration_reader import ConfigurationReader
-from communication_manager import CommunicationManager
-from data_manager import DataManager
-from csv_storage import CSVStorage
-from gpt_service import OpenAIGPT3
-from chat_types import WelcomeChat,WelcomeGuestChat,GoodMorningChat
-from user_communication_selector import UserCommunicationSelector
+from utils.custom_logging import CustomLogging
+from utils.configuration_reader import ConfigurationReader
+from controllers.communication_manager import CommunicationManager
+from controllers.data_manager import DataManager
+from utils.csv_storage import CSVStorage
+from services.gpt_service import OpenAIGPT3
+from controllers.chat_types import WelcomeChat,WelcomeGuestChat,GoodMorningChat
+from controllers.user_communication_selector import UserCommunicationSelector
 
 class Assistant:
 

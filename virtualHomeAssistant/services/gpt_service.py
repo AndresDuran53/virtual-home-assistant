@@ -1,7 +1,7 @@
 import openai
 from openai.error import OpenAIError
 import tiktoken
-from custom_logging import CustomLogging
+from utils.custom_logging import CustomLogging
 
 
 class OpenAIGPT3:
