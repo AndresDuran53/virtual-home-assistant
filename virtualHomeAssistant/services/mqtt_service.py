@@ -1,8 +1,10 @@
+from utils.custom_logging import CustomLogging
 import paho.mqtt.client as mqtt
 
-class MqttController:
+class MqttService:
 
     def __init__(self,mqtt_config,on_message,client_id="ChatGPTService"):
+        self.logger = CustomLogging("logs/assistant.log")
         self.client = mqtt.Client(client_id=client_id, clean_session=False, userdata=None, protocol=mqtt.MQTTv311, transport="tcp")
         self.client.on_message=on_message
         self.client.username_pw_set(username=mqtt_config.mqtt_user, password=mqtt_config.mqtt_pass)
@@ -17,7 +19,7 @@ class MqttController:
             self.client.subscribe(topic)
     
     def send_message(self,topic,message):
-        print("Sending:",topic,message)
+        self.logger.info(f"[Sending] | [Topic]:{topic} | [Message]:{message}")
         self.client.publish(topic,message,qos=1,retain=False)
 
     def get_command_from_topic(self, topic) -> str:

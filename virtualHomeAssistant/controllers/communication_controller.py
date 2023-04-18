@@ -1,17 +1,19 @@
-from mqtt_controller import MqttConfig, MqttController
+from utils.custom_logging import CustomLogging
+from services.mqtt_service import MqttConfig, MqttService
 
-class CommunicationManager:
+class CommunicationController:
     def __init__(self, data_config):
+        self.logger = CustomLogging("logs/assistant.log")
         mqtt_config = MqttConfig.from_json(data_config)
-        self.mqtt_controller = MqttController(mqtt_config, self.handle_command)
+        self.mqtt_service = MqttService(mqtt_config, self.handle_command)
         self.pending_commands = []
 
     def handle_command(self, client, userdata, message):
         topicRecieved = message.topic
         messageRecieved = str(message.payload.decode("utf-8"))
-        print(f"[Topic]:{topicRecieved} | [Message Recieved]:{messageRecieved}")
+        self.logger.info(f"[Topic]:{topicRecieved} | [Message Recieved]:{messageRecieved}")
         if(messageRecieved == "execute"):
-            command = self.mqtt_controller.get_command_from_topic(topicRecieved)
+            command = self.mqtt_service.get_command_from_topic(topicRecieved)
             if(command): self.pending_commands.append(command)
 
     def extract_pending_command(self) -> str:
@@ -24,4 +26,4 @@ class CommunicationManager:
             topicPub = "speaker-message/nag241/tts-es"
         else:
             topicPub = "speaker-message/nag241/tts"
-        self.mqtt_controller.send_message(topicPub,message)
+        self.mqtt_service.send_message(topicPub,message)
