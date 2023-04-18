@@ -1,7 +1,7 @@
 from utils.custom_logging import CustomLogging
 import paho.mqtt.client as mqtt
 
-class MqttController:
+class MqttService:
 
     def __init__(self,mqtt_config,on_message,client_id="ChatGPTService"):
         self.logger = CustomLogging("logs/assistant.log")
