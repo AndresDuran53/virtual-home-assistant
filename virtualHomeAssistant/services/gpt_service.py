@@ -23,13 +23,14 @@ class OpenAIGPT3:
         while(attempt_counter<3):
             try:
                 attempt_counter+=1
+                timeout_aux = attempt_counter*10
                 response = openai.ChatCompletion.create(
                     model=self.model,
                     max_tokens=self.max_tokens_per_requests_recieved,
                     presence_penalty = 0.2,
                     frequency_penalty = 0.5,
                     temperature = 0.9,
-                    request_timeout=15,
+                    request_timeout=timeout_aux,
                     messages=conversation
                 )
                 return response,None

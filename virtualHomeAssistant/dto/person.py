@@ -36,7 +36,8 @@ class Person():
         time_outside = self.last_changed - self.last_not_home_change
         total_seconds = time_outside.total_seconds()
         if total_seconds < 3600:
-            text_time_outside = f"{total_seconds / 60} minutes"
+            total_minutes = int(total_seconds / 60)
+            text_time_outside = f"{total_minutes} minutes"
         else:
             total_hours = int(total_seconds / 3600)
             total_minutes = int(total_seconds/60 - (total_hours*60))
