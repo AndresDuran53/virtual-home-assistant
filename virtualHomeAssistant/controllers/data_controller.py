@@ -1,5 +1,6 @@
 from services.homeassistant_services import HomeAssistantServices
 from dto.person import Person
+from dto.binary_sensor import BinarySensor
 
 class DataController:
     def __init__(self,data_config):
@@ -31,7 +32,7 @@ class DataController:
     
     def get_important_devices(self):
         final_list = []
-        final_list += self.get_sensors_information()
+        final_list += BinarySensor.exclude_non_important_values(self.get_sensors_information())
         final_list += [general_device for general_device in self.general_devices_information if not (general_device.needs_to_be_ignore())]
         return final_list
 
