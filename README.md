@@ -23,7 +23,11 @@ Virtual Home assistant is a home assistant designed to improve the user experien
     ```
 - Run Docker image:
     ```
-    docker run -d --restart unless-stopped --name gptassistant gptassistant-image
+    docker run -d \
+    --restart unless-stopped \
+    --name gptassistant \
+    -e TZ=America/Costa_Rica \
+    gptassistant-image
     ```
 &nbsp;
 
