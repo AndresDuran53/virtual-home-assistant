@@ -1,7 +1,12 @@
+UNAVAILABLE = "unavailable"
+UNKNOWN = "unknown"
+
 class Sensor():
     def __init__(self,entity_id,name):
         self.entity_id = entity_id
         self.name = name
+        self.value = UNAVAILABLE
+        self.unit = None
 
     def set_value(self,value,unit):
         self.value = value
@@ -11,7 +16,7 @@ class Sensor():
         name = self.name
         value = self.value
         unit = self.unit
-        if(value != "unavailable" and unit!=None): value = f"{value}{unit}"
+        if(unit!=None and value.lower() != UNAVAILABLE and value.lower() != UNKNOWN): value = f"{value}{unit}"
         return(f"{name}: {value}")
     
     @classmethod

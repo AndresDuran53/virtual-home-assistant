@@ -1,10 +1,11 @@
-from dto.person import Person
+from dto.homeassistant.people_manager import PeopleManager
 
 class UserCommunicationSelector:
     
     @staticmethod
     def get_people_arriving_home(people_information) -> list:
-        people_arriving_home = Person.get_people_just_get_home(people_information)
+        peopleManager = PeopleManager(people_information)
+        people_arriving_home = peopleManager.get_people_just_get_home()
         return people_arriving_home
     
     @staticmethod
