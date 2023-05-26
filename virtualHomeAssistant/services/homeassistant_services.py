@@ -10,11 +10,6 @@ from dto.homeassistant.person_location_status import PersonLocationStatus
 class HomeAssistantServices:
     url: str
     token: str
-    person_status: list[Person]
-    important_calendars: list[Calendar]
-    sensors: list[Sensor]
-    binary_sensors: list[BinarySensor]
-    general_devices: list[Device]
 
     def __init__(self, url, token, people, calendars, list_sensors, binary_sensors, general_devices):
         self.url = url

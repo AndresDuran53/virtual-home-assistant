@@ -4,14 +4,13 @@ from utils.datetime_utils import get_happening_text
 class Calendar():
     calendar_id: str
     calendar_owner: str
-    events: list[Event]
 
     def __init__(self,calendar_id,calendar_owner):
         self.calendar_id = calendar_id
         self.calendar_owner = calendar_owner
         self.events = []
 
-    def set_events(self,events: list[Event]):
+    def set_events(self,events):
         self.events = Event.sort_by_start_time(events)
 
     def add_event(self,event: Event):
