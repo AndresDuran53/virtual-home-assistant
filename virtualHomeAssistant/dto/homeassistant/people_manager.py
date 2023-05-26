@@ -1,7 +1,6 @@
 from dto.homeassistant.person import Person
 
 class PeopleManager():
-    people_list: list[Person]
 
     def __init__(self,people_list):
         self.people_list = people_list
@@ -9,16 +8,16 @@ class PeopleManager():
     def add_person(self,person: Person):
         self.people_list.append(person)
     
-    def get_names(self) -> list[str]:
+    def get_names(self):
         return [person.name for person in self.people_list]
     
-    def get_people_just_get_home(self) -> list[Person]:
+    def get_people_just_get_home(self):
         return [person for person in self.people_list if person.just_get_home()]
 
-    def get_people_already_home(self) -> list[Person]:
+    def get_people_already_home(self):
         return [person for person in self.people_list if person.is_home() and not person.just_get_home()]
 
-    def get_people_not_home(self) -> list[Person]:
+    def get_people_not_home(self):
         return [person for person in self.people_list if not person.is_home()]
         
     def arriving_to_text(self):
