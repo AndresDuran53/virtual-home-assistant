@@ -29,6 +29,8 @@ class Assistant:
         if(command_aux == "Good Morning"):
             self.create_good_moning_message()
         elif(command_aux == "Welcome Car"):
+            self.create_welcome_chat(True)
+        elif(command_aux == "Welcome Person"):
             self.create_welcome_chat()
 
     def get_device_information(self):
@@ -49,21 +51,28 @@ class Assistant:
         user_input = GoodMorningChat.format_good_morning_text(device_information)
         self.send_conversation_to_gpt3(user_input)
 
-    def create_welcome_chat(self):
+    def create_welcome_chat(self, notify_no_people = False):
         self.logger.info(f"Creating welcoming message.")
         self.data_controller.update_information()
         people_information = self.data_controller.get_people_information()
         people_arriving_home = UserCommunicationSelector.get_people_arriving_home(people_information)
-        if(len(people_arriving_home)>0): 
-            self.logger.info(f"[People Arriving]: {[person.get_information() for person in people_arriving_home]}")
-            device_information = self.get_device_information()
-            self.logger.info(f"[Home Information]: {[device.to_text() for device in device_information]}")
-            user_input = WelcomeChat.format_welcome_text(people_arriving_home,device_information)
-        else:
+        if len(people_arriving_home) > 0:
+            self.handle_people_arriving_home(people_arriving_home)
+        elif notify_no_people:
             self.logger.info(f"Stopping welcoming, no person arrived.")
-            people_at_home = UserCommunicationSelector.get_people_at_home(people_information)
-            self.logger.info(f"[People At Home]: {[person.get_information() for person in people_at_home]}")
-            user_input = WelcomeGuestChat.format_welcome_text(people_at_home)    
+            self.handle_no_people_arrived(people_information)
+        
+    def handle_people_arriving_home(self, people_arriving_home):
+        self.logger.info(f"[People Arriving]: {[person.get_information() for person in people_arriving_home]}")
+        device_information = self.get_device_information()
+        self.logger.info(f"[Home Information]: {[device.to_text() for device in device_information]}")
+        user_input = WelcomeChat.format_welcome_text(people_arriving_home, device_information)
+        self.send_conversation_to_gpt3(user_input)
+        
+    def handle_no_people_arrived(self, people_information):
+        people_at_home = UserCommunicationSelector.get_people_at_home(people_information)
+        self.logger.info(f"[People At Home]: {[person.get_information() for person in people_at_home]}")
+        user_input = WelcomeGuestChat.format_welcome_text(people_at_home)
         self.send_conversation_to_gpt3(user_input)
 
     def send_message_to_gpt3(self,user_input):
