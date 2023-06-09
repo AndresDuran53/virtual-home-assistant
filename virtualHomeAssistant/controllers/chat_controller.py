@@ -4,9 +4,9 @@ class WelcomeChat():
     intro = "Hello Assistant, The following people just arrived home, please give us a personalized greeting, analyze the time of my systems and response with a personalized greeting, respectful but friendly, as Jarvis from Iron Man would:"
     information_decription = """After that give an update about the system information following the next steps:
 (1) Go through the information one by one and consider whether the information is potentially relevant to inform or not.
-(2) If you detect a value or some set of values together could be an issue, needs action on my part, or may represent a danger, give me a recommendation about it.
+(2) If you detect a value or some set of values together could be an issue, needs action on my part, give me a recommendation about it.
 (3) Let me know only the important information.
-(4) Remember that you must always answer me in Spanish"""
+(4) Remember that you must always answer me in Spanish."""
 
     @classmethod
     def format_welcome_text(cls,people_arriving,devices_information):       
