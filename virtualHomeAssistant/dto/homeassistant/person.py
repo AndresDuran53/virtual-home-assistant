@@ -25,7 +25,7 @@ class Person():
         is_home_value = self.state.lower() == STATE_HOME
         return is_home_value
 
-    def just_get_home(self,minutes_to_evaluate = 5) -> bool:
+    def just_get_home(self,minutes_to_evaluate = 10) -> bool:
         is_home = self.is_home()
         if not is_home:
             return False
