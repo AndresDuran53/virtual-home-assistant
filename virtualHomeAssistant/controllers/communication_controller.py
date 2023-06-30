@@ -23,7 +23,7 @@ class CommunicationController:
     
     def requests_to_reproduce_message(self, message, language="en"):
         if(language=="es"):
-            topicPub = "speaker-message/nag241/tts-es"
+            topicPub = "speaker-message/all/tts-es"
         else:
-            topicPub = "speaker-message/nag241/tts"
+            topicPub = "speaker-message/all/tts"
         self.mqtt_service.send_message(topicPub,message)
