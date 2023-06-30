@@ -27,6 +27,7 @@ Virtual Home assistant is a home assistant designed to improve the user experien
     --restart unless-stopped \
     --name gptassistant \
     -e TZ=America/Costa_Rica \
+    --network host \
     gptassistant-image
     ```
 &nbsp;
