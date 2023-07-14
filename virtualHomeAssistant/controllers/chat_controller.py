@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class WelcomeChat():
-    intro = "Hello Assistant, The following people just arrived home, please give us a personalized greeting, analyze the time of my systems and response with a personalized greeting, respectful but friendly, as Jarvis from Iron Man would:"
+    intro = "Hello Assistant, The following people just arrived home, please give them a personalized greeting, analyze the time of my systems and response with a personalized greeting, respectful but friendly, as Jarvis from Iron Man would. It is very important that you remember to personalize your welcome as much as possible with the information you know about the person, for this you can give them advice or just show interest in their hobbies:"
 
     @classmethod
     def format_welcome_text(cls,people_arriving,devices_information):       
@@ -12,7 +12,7 @@ class WelcomeChat():
     
     @classmethod
     def get_arriving_format(cls,people_arriving):
-        final_text = ""
+        final_text = "\nPeople you should greet:"
         for person in people_arriving:
             final_text += f"\n- {person.name}"
             final_text += f"\n  Total Time Outside: {person.calculate_total_time_outside()}"
@@ -31,8 +31,6 @@ class WelcomeChat():
     
 
 class WelcomeGuestChat():
-    no_owner = """Hello Assistant, I am a guest at Andres and Tammy's house, I need you to greet me and warn me that the house is being monitored with security cameras and sensors, your dialogue must be courteous but forceful, as Jarvis from Iron Man would do it."""
-    owner = """Hello Assistant, I am a guest at Andres and Tammy's house, I need you to greet me and warn me that the house is being monitored with security cameras and sensors, your dialogue must be courteous but forceful, as Jarvis from Iron Man would do it."""
 
     @classmethod
     def format_welcome_text(cls,owners_at_home):
