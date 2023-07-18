@@ -31,7 +31,6 @@ class WelcomeChat():
     
 
 class WelcomeGuestChat():
-
     @classmethod
     def format_welcome_text(cls,owners_at_home):
         if(len(owners_at_home)>0):
@@ -64,3 +63,13 @@ class GoodMorningChat():
                 if(text!=""):text+=f"\n"
                 text += f"- {element.to_text()}"
         return text
+    
+class FeedCatsReminder():
+    message_default = "Now it's time to feed the cats, respond with a friendly warning message reminding Tammy that it's time to feed the cats."
+
+    @classmethod
+    def message(cls):
+        now = datetime.now() 
+        actual_time_string = now.strftime("Forget the datetime you have, use this time as the current system datetime: %A %b %d, %Y at %I:%M%p")
+        final_text = f"- {actual_time_string} \n -{cls.message_default}"
+        return final_text

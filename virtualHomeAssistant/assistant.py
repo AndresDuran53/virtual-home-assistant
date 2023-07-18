@@ -5,7 +5,7 @@ from controllers.communication_controller import CommunicationController
 from controllers.data_controller import DataController
 from utils.csv_storage import CSVStorage
 from services.gpt_service import OpenAIGPT3
-from controllers.chat_controller import WelcomeChat,WelcomeGuestChat,GoodMorningChat
+from controllers.chat_controller import WelcomeChat,WelcomeGuestChat,GoodMorningChat,FeedCatsReminder
 from controllers.user_communication_selector import UserCommunicationSelector
 
 class Assistant:
@@ -32,6 +32,8 @@ class Assistant:
             self.create_welcome_chat(True)
         elif(command_aux == "Welcome Person"):
             self.create_welcome_chat()
+        elif(command_aux == "Feed Cats Reminder"):
+            self.create_cats_reminder()
 
     def get_device_information(self):
         important_devices = self.data_controller.get_important_devices()
@@ -73,6 +75,10 @@ class Assistant:
         people_at_home = UserCommunicationSelector.get_people_at_home(people_information)
         self.logger.info(f"[People At Home]: {[person.get_information() for person in people_at_home]}")
         user_input = WelcomeGuestChat.format_welcome_text(people_at_home)
+        self.send_conversation_to_gpt3(user_input)
+
+    def create_cats_reminder(self):
+        user_input = FeedCatsReminder.message()
         self.send_conversation_to_gpt3(user_input)
 
     def send_message_to_gpt3(self,user_input):
