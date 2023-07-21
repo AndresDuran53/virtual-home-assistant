@@ -1,27 +1,36 @@
 from datetime import datetime
 
 class WelcomeChat():
-    intro = "Hello Assistant, The following people just arrived home, please give them a personalized greeting, analyze the time of my systems and response with a personalized greeting, respectful but friendly, as Jarvis from Iron Man would. It is very important that you remember to personalize your welcome as much as possible with the information you know about the person, for this you can give them advice or just show interest in their hobbies:"
+    intro = "please give them a personalized greeting, analyze the time of my systems and response with a personalized greeting, respectful but friendly, as Jarvis from Iron Man would. It is very important that you remember to personalize your welcome as much as possible with the information you know about the person, for this you can give them advice or just show interest in their hobbies, Don't forget to notify about the upcoming events:"
 
     @classmethod
     def format_welcome_text(cls,people_arriving,devices_information):       
         people_meeting_text = cls.get_arriving_format(people_arriving)
         text_device_information = cls.text_from_list(devices_information)
-        final_text = f"{cls.intro}{people_meeting_text}\n{text_device_information}"
+        intro_with_names = cls.people_intro(people_arriving)
+        final_text = f"{intro_with_names}{people_meeting_text}\n{text_device_information}"
         return final_text
+    
+    @classmethod
+    def people_intro(cls,people_arriving):
+        names = [person.name for person in people_arriving]
+        if len(names) == 1:
+            return f"Hello Assistant, {names[0]} just arrived home, "+cls.intro
+        else:
+            all_names = ', '.join(names[:-1]) + ' and ' + names[-1]
+            return f"Hello Assistant, {all_names} just arrived home, "+cls.intro
     
     @classmethod
     def get_arriving_format(cls,people_arriving):
         final_text = "\nPeople you should greet:"
         for person in people_arriving:
-            final_text += f"\n- {person.name}"
-            final_text += f"\n  Total Time Outside: {person.calculate_total_time_outside()}"
+            final_text += f"\n- {person.name} ({person.calculate_total_time_outside()} outside)"
         return final_text
     
     @classmethod
     def text_from_list(cls,status_list):
         now = datetime.now() 
-        actual_time_string = now.strftime("Forget the datetime you have, use this time as the current system datetime: %A %b %d, %Y at %I:%M%p")
+        actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
         text = f"- {actual_time_string}"
         for element in status_list:
             if(element.to_text() != ""):
@@ -56,7 +65,7 @@ class GoodMorningChat():
     @classmethod
     def text_from_list(cls,status_list):
         now = datetime.now() 
-        actual_time_string = now.strftime("Forget the datetime you have, use this time as the current system datetime: %A %b %d, %Y at %I:%M%p")
+        actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
         text = f"- {actual_time_string}"
         for element in status_list:
             if(element.to_text() != ""):
@@ -70,6 +79,6 @@ class FeedCatsReminder():
     @classmethod
     def message(cls):
         now = datetime.now() 
-        actual_time_string = now.strftime("Forget the datetime you have, use this time as the current system datetime: %A %b %d, %Y at %I:%M%p")
+        actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
         final_text = f"- {actual_time_string} \n -{cls.message_default}"
         return final_text

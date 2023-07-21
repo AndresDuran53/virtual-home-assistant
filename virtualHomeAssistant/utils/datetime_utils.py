@@ -23,8 +23,8 @@ def get_happening_text(event):
     tz = pytz.timezone('America/Costa_Rica')
     now = datetime.now(tz=tz)
     if (event.end_time < now):
-        return "Past event"
+        return "Recent event"
     elif (event.start_time <= now and event.end_time >= now):
         return "Event happening"
     else:
-        return "Future event"
+        return "Upcoming event"

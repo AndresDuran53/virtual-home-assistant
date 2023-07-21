@@ -42,9 +42,10 @@ class Assistant:
     
     def send_conversation_to_gpt3(self,user_input):
         gpt3_response = self.send_message_to_gpt3(user_input)
-        self.logger.info("Sending response to speakers via mqtt.")
-        self.communication_controller.requests_to_reproduce_message(gpt3_response,"es")
-        self.logger.info("Response sended.")
+        if(gpt3_response):
+            self.logger.info("Sending response to speakers via mqtt.")
+            self.communication_controller.requests_to_reproduce_message(gpt3_response,"es")
+            self.logger.info("Response sended.")
     
     def create_good_moning_message(self):
         self.logger.info(f"Creating good morning message.")
