@@ -27,3 +27,7 @@ class CommunicationController:
         else:
             topicPub = "speaker-message/all/tts"
         self.mqtt_service.send_message(topicPub,message)
+
+    def requests_to_reproduce_sound(self,sound_name):
+        topicPub = "speaker-message/all/reproduce"
+        self.mqtt_service.send_message(topicPub,sound_name)
