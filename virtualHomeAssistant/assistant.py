@@ -1,4 +1,5 @@
 import time
+import threading
 from utils.custom_logging import CustomLogging
 from utils.configuration_reader import ConfigurationReader
 from controllers.communication_controller import CommunicationController
@@ -7,6 +8,7 @@ from utils.csv_storage import CSVStorage
 from services.gpt_service import OpenAIGPT3
 from controllers.chat_controller import WelcomeChat,WelcomeGuestChat,GoodMorningChat,FeedCatsReminder
 from controllers.user_communication_selector import UserCommunicationSelector
+from whisper_transcribe.speech_handler import SpeechHandler
 
 class Assistant:
 
@@ -23,6 +25,12 @@ class Assistant:
         self.chat_service = OpenAIGPT3.from_json(self.data_config)
         self.logger.info(f"Creating token manager...")
         self.token_manager = CSVStorage(self.chat_service.used_chars_filename)
+        self.start_audio_translation()
+
+    def start_audio_translation(self):
+        self.speechHandler = SpeechHandler()
+        speech_thread = threading.Thread(target=self.speechHandler.execute)
+        speech_thread.start()
 
     def check_pending_commands(self):
         command_aux = self.communication_controller.extract_pending_command()
@@ -96,9 +104,17 @@ class Assistant:
         else:
             self.logger.warning("Too many tokens to request.")
             return None
+        
+    def loop(self):
+        assistant.check_pending_commands()
+        if(len(self.speechHandler.last_mention)>0):
+            self.communication_controller.requests_to_reproduce_sound("assistantRecognition")
+            texto_a_enviar = self.speechHandler.last_mention.pop(-1)
+            print(f"Texto a enviar: {texto_a_enviar}")
+            self.send_conversation_to_gpt3(texto_a_enviar)
 
 if __name__ == '__main__':
     assistant = Assistant()
     while True:
-        assistant.check_pending_commands()
+        assistant.loop()
         time.sleep(0.2)

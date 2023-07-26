@@ -2,8 +2,20 @@ from utils.custom_logging import CustomLogging
 import paho.mqtt.client as mqtt
 
 class MqttService:
+    __instance = None
 
-    def __init__(self,mqtt_config,on_message,client_id="ChatGPTService"):
+    def __new__(cls, *args, **kwargs):
+        if not cls.__instance:
+            cls.__instance = super().__new__(cls)
+        return cls.__instance
+    
+    def __init__(self, mqtt_config=None, on_message=None, client_id="AssistantService"):
+        if not hasattr(self, 'client'):
+            if mqtt_config is None or on_message is None or client_id is None:
+                raise ValueError('MQTT configuration not found at object creation')
+            self._configuration(mqtt_config, on_message, client_id)
+
+    def _configuration(self,mqtt_config,on_message,client_id):
         self.logger = CustomLogging("logs/assistant.log")
         self.client = mqtt.Client(client_id=client_id, clean_session=False, userdata=None, protocol=mqtt.MQTTv311, transport="tcp")
         self.client.on_message=on_message
