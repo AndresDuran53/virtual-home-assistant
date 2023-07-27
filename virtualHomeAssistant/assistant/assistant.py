@@ -6,7 +6,6 @@ from assistant.conversation_processor import ConversationProcessor
 from controllers.data_controller import DataController
 from controllers.chat_controller import WelcomeChat,WelcomeGuestChat,GoodMorningChat,FeedCatsReminder
 from controllers.user_communication_selector import UserCommunicationSelector
-from whisper_transcribe.speech_handler import SpeechHandler
 
 class Assistant:
     def __init__(self, listener: Listener, 
@@ -20,38 +19,34 @@ class Assistant:
         self.voice = voice
         self.data_controller = DataController(self.data_config)
         self.conversation_processor = conversation_processor
-        self.speechHandler = SpeechHandler()
-        self.speechHandler.execute()
 
     def listen(self):
-        command_aux = self.listener.get_next_message()
-        if(command_aux == "Good Morning"):
+        text_revieced = self.listener.get_next_message()
+        if(not text_revieced): return
+        if(text_revieced == "Good Morning"):
             self.create_good_moning_message()
-        elif(command_aux == "Welcome Car"):
+        elif(text_revieced == "Welcome Car"):
             self.create_welcome_chat(True)
-        elif(command_aux == "Welcome Person"):
+        elif(text_revieced == "Welcome Person"):
             self.create_welcome_chat()
-        elif(command_aux == "Feed Cats Reminder"):
+        elif(text_revieced == "Feed Cats Reminder"):
             self.create_cats_reminder()
-
-    def listen_stt(self):
-        texto_a_enviar = self.speechHandler.get_next_message()
-        if(texto_a_enviar):
+        else:
             self.voice.reproduce_sound("assistantRecognition")
-            self.logger.info(f"[SST detected] Sending text to conversation processor: {texto_a_enviar}")
-            self.start_conversation(texto_a_enviar)
+            self.logger.info(f"[SST detected] Sending text to conversation processor: {text_revieced}")
+            self.start_conversation(text_revieced)
 
-    def get_device_information(self):
-        important_devices = self.data_controller.get_important_devices()
-        calendar_events = self.data_controller.get_calendar_events()
-        return important_devices + calendar_events
-    
     def start_conversation(self,user_input: str):
         gpt3_response = self.conversation_processor.send_message(user_input)
         if(gpt3_response):
             self.logger.info("Sending response to speakers via mqtt.")
             self.voice.speak(gpt3_response,"es")
             self.logger.info("Response sended.")
+
+    def get_device_information(self):
+        important_devices = self.data_controller.get_important_devices()
+        calendar_events = self.data_controller.get_calendar_events()
+        return important_devices + calendar_events
     
     def create_good_moning_message(self):
         self.logger.info(f"Creating good morning message.")
@@ -91,7 +86,6 @@ class Assistant:
     def loop(self):
         while True:
             self.listen()
-            self.listen_stt()
             time.sleep(0.2)
 
 if __name__ == '__main__':
