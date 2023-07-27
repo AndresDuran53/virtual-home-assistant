@@ -2,7 +2,7 @@ import time
 import threading
 from utils.custom_logging import CustomLogging
 from assistant.listener import Listener
-from controllers.communication_controller import CommunicationController
+from assistant.voice import Voice
 from controllers.data_controller import DataController
 from utils.csv_storage import CSVStorage
 from services.gpt_service import OpenAIGPT3
@@ -11,19 +11,21 @@ from controllers.user_communication_selector import UserCommunicationSelector
 from whisper_transcribe.speech_handler import SpeechHandler
 
 class Assistant:
-    def __init__(self, listener: Listener, logger: CustomLogging, data_config: dict):
+    def __init__(self, listener: Listener, voice: Voice, logger: CustomLogging, data_config: dict):
         self.logger = logger
         self.data_config = data_config
         self.logger.info(f"Connecting to Listener...")
         self.listener = listener
-        self.logger.info(f"Connecting to Communication Manager...")
-        self.communication_controller = CommunicationController(self.data_config)
+        self.logger.info(f"Connecting to Voice...")
+        self.voice = voice
         self.logger.info(f"Creating data manager...")
         self.data_controller = DataController(self.data_config)
         self.logger.info(f"Creating OpenAi GPT3 service...")
         self.chat_service = OpenAIGPT3.from_json(self.data_config)
         self.logger.info(f"Creating token manager...")
         self.token_manager = CSVStorage(self.chat_service.used_chars_filename)
+        self.voice.speak("Hello all! This is just a test")
+        self.voice.speak("Era solo una prueba","es")
         self.start_audio_translation()
 
     def start_audio_translation(self):
@@ -51,7 +53,7 @@ class Assistant:
         gpt3_response = self.send_message_to_gpt3(user_input)
         if(gpt3_response):
             self.logger.info("Sending response to speakers via mqtt.")
-            self.communication_controller.requests_to_reproduce_message(gpt3_response,"es")
+            self.voice.speak(gpt3_response,"es")
             self.logger.info("Response sended.")
     
     def create_good_moning_message(self):
@@ -108,7 +110,7 @@ class Assistant:
         while True:
             self.check_pending_commands()
             if(len(self.speechHandler.last_mention)>0):
-                self.communication_controller.requests_to_reproduce_sound("assistantRecognition")
+                self.voice.reproduce_sound("assistantRecognition")
                 texto_a_enviar = self.speechHandler.last_mention.pop(-1)
                 print(f"Texto a enviar: {texto_a_enviar}")
                 self.send_conversation_to_gpt3(texto_a_enviar)
