@@ -1,7 +1,7 @@
 import time
 import threading
 from utils.custom_logging import CustomLogging
-from utils.configuration_reader import ConfigurationReader
+from assistant.listener import Listener
 from controllers.communication_controller import CommunicationController
 from controllers.data_controller import DataController
 from utils.csv_storage import CSVStorage
@@ -11,9 +11,11 @@ from controllers.user_communication_selector import UserCommunicationSelector
 from whisper_transcribe.speech_handler import SpeechHandler
 
 class Assistant:
-    def __init__(self, logger: CustomLogging, data_config: dict):
+    def __init__(self, listener: Listener, logger: CustomLogging, data_config: dict):
         self.logger = logger
         self.data_config = data_config
+        self.logger.info(f"Connecting to Listener...")
+        self.listener = listener
         self.logger.info(f"Connecting to Communication Manager...")
         self.communication_controller = CommunicationController(self.data_config)
         self.logger.info(f"Creating data manager...")
@@ -30,7 +32,7 @@ class Assistant:
         speech_thread.start()
 
     def check_pending_commands(self):
-        command_aux = self.communication_controller.extract_pending_command()
+        command_aux = self.listener.get_next_message()
         if(command_aux == "Good Morning"):
             self.create_good_moning_message()
         elif(command_aux == "Welcome Car"):

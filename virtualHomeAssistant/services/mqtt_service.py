@@ -1,6 +1,28 @@
 from utils.custom_logging import CustomLogging
 import paho.mqtt.client as mqtt
 
+class MqttConfig:
+    broker_address = None
+    mqtt_user = None
+    mqtt_pass = None
+    subscription_topics = []
+
+    def __init__(self, broker_address=None, mqtt_user=None, mqtt_pass=None, subscription_topics=None):
+        self.broker_address = broker_address
+        self.mqtt_user = mqtt_user
+        self.mqtt_pass = mqtt_pass
+        self.subscription_topics = subscription_topics
+
+    @classmethod
+    def from_json(cls, config_data):
+        mqtt_config = MqttConfig(
+            broker_address=config_data['mqtt']['brokerAddress'],
+            mqtt_user=config_data['mqtt']['mqttUser'],
+            mqtt_pass=config_data['mqtt']['mqttPass'],
+            subscription_topics=config_data['mqtt']['subscriptionTopics']
+        )
+        return mqtt_config
+
 class MqttService:
     __instance = None
 
@@ -9,7 +31,7 @@ class MqttService:
             cls.__instance = super().__new__(cls)
         return cls.__instance
     
-    def __init__(self, mqtt_config=None, on_message=None, client_id="AssistantService"):
+    def __init__(self, mqtt_config:MqttConfig = None, on_message = None, client_id="AssistantService"):
         if not hasattr(self, 'client'):
             if mqtt_config is None or on_message is None or client_id is None:
                 raise ValueError('MQTT configuration not found at object creation')
@@ -39,25 +61,3 @@ class MqttService:
             if know_command["topic"] == topic:
                 return know_command["commandName"]
         return None
-    
-class MqttConfig:
-    broker_address = None
-    mqtt_user = None
-    mqtt_pass = None
-    subscription_topics = []
-
-    def __init__(self, broker_address=None, mqtt_user=None, mqtt_pass=None, subscription_topics=None):
-        self.broker_address = broker_address
-        self.mqtt_user = mqtt_user
-        self.mqtt_pass = mqtt_pass
-        self.subscription_topics = subscription_topics
-
-    @classmethod
-    def from_json(cls, config_data):
-        mqtt_config = MqttConfig(
-            broker_address=config_data['mqtt']['brokerAddress'],
-            mqtt_user=config_data['mqtt']['mqttUser'],
-            mqtt_pass=config_data['mqtt']['mqttPass'],
-            subscription_topics=config_data['mqtt']['subscriptionTopics']
-        )
-        return mqtt_config
