@@ -1,6 +1,15 @@
 from datetime import datetime
 
 class CustomLogging:
+    _instances = {}
+    print_debug = True
+
+    def __new__(cls, file_name):
+        instance = cls._instances.get(file_name)
+        if instance is None:
+            instance = super().__new__(cls)
+            cls._instances[file_name] = instance
+        return instance
 
     def __init__(self, file_name):
         self.file_name = file_name
@@ -20,6 +29,6 @@ class CustomLogging:
     def log(self, level, message):
         timestamp = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         final_message = f'[{timestamp}] {level} - {message}\n'
-        print(final_message)
+        if(self.print_debug): print(final_message)
         with open(self.file_name, 'a') as file:
             file.write(final_message)

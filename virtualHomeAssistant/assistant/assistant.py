@@ -1,7 +1,5 @@
 import time
 import threading
-from utils.custom_logging import CustomLogging
-from utils.configuration_reader import ConfigurationReader
 from controllers.communication_controller import CommunicationController
 from controllers.data_controller import DataController
 from utils.csv_storage import CSVStorage
@@ -12,11 +10,9 @@ from whisper_transcribe.speech_handler import SpeechHandler
 
 class Assistant:
 
-    def __init__(self):
-        self.logger = CustomLogging("logs/assistant.log")
-        self.logger.info(f"[STARTING SYSTEM] Initializing the system...")
-        self.logger.info(f"Reading configuration file...")
-        self.data_config = ConfigurationReader.read_config_file()
+    def __init__(self,logger,data_config):
+        self.logger = logger
+        self.data_config = data_config
         self.logger.info(f"Connecting to Communication Manager...")
         self.communication_controller = CommunicationController(self.data_config)
         self.logger.info(f"Creating data manager...")
@@ -106,15 +102,15 @@ class Assistant:
             return None
         
     def loop(self):
-        assistant.check_pending_commands()
-        if(len(self.speechHandler.last_mention)>0):
-            self.communication_controller.requests_to_reproduce_sound("assistantRecognition")
-            texto_a_enviar = self.speechHandler.last_mention.pop(-1)
-            print(f"Texto a enviar: {texto_a_enviar}")
-            self.send_conversation_to_gpt3(texto_a_enviar)
+        while True:
+            self.check_pending_commands()
+            if(len(self.speechHandler.last_mention)>0):
+                self.communication_controller.requests_to_reproduce_sound("assistantRecognition")
+                texto_a_enviar = self.speechHandler.last_mention.pop(-1)
+                print(f"Texto a enviar: {texto_a_enviar}")
+                self.send_conversation_to_gpt3(texto_a_enviar)
+            time.sleep(0.2)
 
 if __name__ == '__main__':
     assistant = Assistant()
-    while True:
-        assistant.loop()
-        time.sleep(0.2)
+    assistant.loop()
