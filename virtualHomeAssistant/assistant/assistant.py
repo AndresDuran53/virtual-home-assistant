@@ -3,6 +3,7 @@ import threading
 from utils.custom_logging import CustomLogging
 from assistant.listener import Listener
 from assistant.voice import Voice
+from assistant.conversation_processor import ConversationProcessor
 from controllers.data_controller import DataController
 from utils.csv_storage import CSVStorage
 from services.gpt_service import OpenAIGPT3
@@ -11,7 +12,11 @@ from controllers.user_communication_selector import UserCommunicationSelector
 from whisper_transcribe.speech_handler import SpeechHandler
 
 class Assistant:
-    def __init__(self, listener: Listener, voice: Voice, logger: CustomLogging, data_config: dict):
+    def __init__(self, listener: Listener, 
+                 voice: Voice, 
+                 conversation_processor: ConversationProcessor,
+                 logger: CustomLogging, 
+                 data_config: dict):
         self.logger = logger
         self.data_config = data_config
         self.logger.info(f"Connecting to Listener...")
@@ -20,12 +25,10 @@ class Assistant:
         self.voice = voice
         self.logger.info(f"Creating data manager...")
         self.data_controller = DataController(self.data_config)
-        self.logger.info(f"Creating OpenAi GPT3 service...")
-        self.chat_service = OpenAIGPT3.from_json(self.data_config)
-        self.logger.info(f"Creating token manager...")
-        self.token_manager = CSVStorage(self.chat_service.used_chars_filename)
+        self.logger.info(f"Connecting to conversation prepocessor...")
+        self.conversation_processor = conversation_processor
         self.speechHandler = None
-        #self.start_audio_translation()
+        self.start_audio_translation()
 
     def start_audio_translation(self):
         self.speechHandler = SpeechHandler()
@@ -48,8 +51,8 @@ class Assistant:
         calendar_events = self.data_controller.get_calendar_events()
         return important_devices + calendar_events
     
-    def send_conversation_to_gpt3(self,user_input):
-        gpt3_response = self.send_message_to_gpt3(user_input)
+    def send_conversation_to_gpt3(self,user_input: str):
+        gpt3_response = self.conversation_processor.send_message(user_input)
         if(gpt3_response):
             self.logger.info("Sending response to speakers via mqtt.")
             self.voice.speak(gpt3_response,"es")
@@ -89,21 +92,6 @@ class Assistant:
     def create_cats_reminder(self):
         user_input = FeedCatsReminder.message()
         self.send_conversation_to_gpt3(user_input)
-
-    def send_message_to_gpt3(self,user_input):
-        if(user_input == None and user_input == ""): return
-        max_per_day = self.token_manager.get_value_for_date()
-        self.logger.info(f"[Tokens used today]: {max_per_day}")
-        if(self.chat_service.can_do_question(user_input,max_per_day)):
-            self.logger.info("Sending request to openai api.")
-            text_result,total_tokens = self.chat_service.welcome_home_chat(user_input)
-            self.logger.info(f"[GPT3 Response]: {text_result}")
-            self.token_manager.increase_value_for_today_by(total_tokens)
-            self.logger.info(f"[Total tokens used]: {total_tokens}")
-            return text_result
-        else:
-            self.logger.warning("Too many tokens to request.")
-            return None
         
     def loop(self):
         while True:

@@ -1,6 +1,6 @@
 class ConversationProcessor():
-    def can_send_new_message(self, message) -> bool:
+    def can_send_new_message(self, message: str) -> bool:
         pass
 
-    def send_message(self,new_message) -> dict:
+    def send_message(self, message: str) -> dict:
         pass

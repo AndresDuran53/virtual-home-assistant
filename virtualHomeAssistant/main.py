@@ -3,7 +3,7 @@ from utils.configuration_reader import ConfigurationReader
 from assistant.assistant import Assistant
 from assistant.implementation.listener_mqtt import ListenerMqtt
 from assistant.implementation.voice_mqtt import VoiceMqtt
-from assistant.conversation_processor import ConversationProcessor
+from assistant.implementation.gpt_conversation_processor import GPTConversationProcessor
 
 
 logger = CustomLogging("logs/assistant.log")
@@ -11,7 +11,9 @@ logger = CustomLogging("logs/assistant.log")
 def create_assistant(logger, data_config: dict):
     listener_mqtt = ListenerMqtt(data_config)
     voice_mqtt = VoiceMqtt(data_config)
-    assistant = Assistant(listener=listener_mqtt, voice=voice_mqtt, logger=logger, data_config=data_config)
+    gpt_conversation_processor = GPTConversationProcessor(data_config)
+    assistant = Assistant(listener=listener_mqtt, voice=voice_mqtt, conversation_processor=gpt_conversation_processor,
+                          logger=logger, data_config=data_config)
     return assistant
 
 def main():
