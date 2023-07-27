@@ -12,7 +12,6 @@ class ListenerMqtt(Listener):
         mqtt_config = MqttConfig.from_json(data_config)
         self.mqtt_service = MqttService(mqtt_config, self.handle_command)
         self.pending_commands = []
-        print(f"ListenerMqtt: {self.mqtt_service}")
 
     def handle_command(self, client, userdata, message):
         topicRecieved = message.topic

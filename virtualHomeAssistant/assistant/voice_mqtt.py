@@ -11,7 +11,6 @@ class VoiceMqtt(Voice):
     def __init__(self, data_config: dict):
         mqtt_config = MqttConfig.from_json(data_config)
         self.mqtt_service = MqttService(mqtt_config, None)
-        print(f"VoiceMqtt: {self.mqtt_service}")
     
     def speak(self, message: str, language="en"):
         if(language=="es"):
