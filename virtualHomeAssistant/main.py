@@ -1,8 +1,8 @@
 from utils.custom_logging import CustomLogging
 from utils.configuration_reader import ConfigurationReader
 from assistant.assistant import Assistant
-from assistant.listener_mqtt import ListenerMqtt
-from assistant.voice_mqtt import VoiceMqtt
+from assistant.implementation.listener_mqtt import ListenerMqtt
+from assistant.implementation.voice_mqtt import VoiceMqtt
 from assistant.conversation_processor import ConversationProcessor
 
 
