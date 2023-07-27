@@ -5,8 +5,6 @@ from assistant.listener import Listener
 from assistant.voice import Voice
 from assistant.conversation_processor import ConversationProcessor
 from controllers.data_controller import DataController
-from utils.csv_storage import CSVStorage
-from services.gpt_service import OpenAIGPT3
 from controllers.chat_controller import WelcomeChat,WelcomeGuestChat,GoodMorningChat,FeedCatsReminder
 from controllers.user_communication_selector import UserCommunicationSelector
 from whisper_transcribe.speech_handler import SpeechHandler
