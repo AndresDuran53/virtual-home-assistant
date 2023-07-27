@@ -4,19 +4,18 @@ import io
 import speech_recognition as sr
 import whisper
 import torch
+import threading
 
 from datetime import datetime, timedelta
 from queue import Queue
 from tempfile import NamedTemporaryFile
 from time import sleep
-try:
-    from whisper_transcribe.system_configuration import ParserValues, AudioDeviceConfiguration
-    from whisper_transcribe.audio_util import AudioUtil
-except:
-    from system_configuration import ParserValues, AudioDeviceConfiguration
-    from audio_util import AudioUtil
 
-class SpeechHandler:
+from whisper_transcribe.system_configuration import ParserValues, AudioDeviceConfiguration
+from whisper_transcribe.audio_util import AudioUtil
+from assistant.listener import Listener
+
+class SpeechHandler(Listener):
     last_mention = []
 
     def __init__(self):
@@ -34,8 +33,8 @@ class SpeechHandler:
         self.device_index = AudioDeviceConfiguration.get_microphone_device_index(self.args.default_microphone)
         self.temp_file = NamedTemporaryFile().name
         self.audio_model = self.load_mode(self.args)
-        self.generate_audio_source()
         print("Model loaded.\n")
+        self.source = None        
 
     def load_mode(self,args):
         ONLY_ENGLISH = False
@@ -67,7 +66,9 @@ class SpeechHandler:
         self.transcription = self.result_transcription_handler(result,True)
         self.show_transcription()
 
-    def execute(self):
+    def _update_audio_listened(self):
+        if(not self.source):
+            self.generate_audio_source()
         is_speaking = False
         while True:
             try:
@@ -101,6 +102,11 @@ class SpeechHandler:
                 print("SpeechHandler Error")
             # Infinite loops are bad for processors, must sleep.
             sleep(0.25)
+        
+
+    def execute(self):
+        speech_thread = threading.Thread(target=self._update_audio_listened)
+        speech_thread.start()
 
     def silence_time_is_up(self):
         silence_timeout = self.silence_timeout
@@ -136,6 +142,12 @@ class SpeechHandler:
             was_called = keyword.lower() in normalized_string
             if(was_called): return True
         return False
+    
+    def get_next_message(self) -> str:
+        if(len(self.last_mention)>0):
+            texto_a_enviar = self.last_mention.pop(-1)
+            return texto_a_enviar
+        return None
 
 
 if __name__ == "__main__":
