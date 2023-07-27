@@ -19,13 +19,9 @@ class Assistant:
                  data_config: dict):
         self.logger = logger
         self.data_config = data_config
-        self.logger.info(f"Connecting to Listener...")
         self.listener = listener
-        self.logger.info(f"Connecting to Voice...")
         self.voice = voice
-        self.logger.info(f"Creating data manager...")
         self.data_controller = DataController(self.data_config)
-        self.logger.info(f"Connecting to conversation prepocessor...")
         self.conversation_processor = conversation_processor
         self.speechHandler = None
         self.start_audio_translation()
