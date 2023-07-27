@@ -24,9 +24,8 @@ class Assistant:
         self.chat_service = OpenAIGPT3.from_json(self.data_config)
         self.logger.info(f"Creating token manager...")
         self.token_manager = CSVStorage(self.chat_service.used_chars_filename)
-        self.voice.speak("Hello all! This is just a test")
-        self.voice.speak("Era solo una prueba","es")
-        self.start_audio_translation()
+        self.speechHandler = None
+        #self.start_audio_translation()
 
     def start_audio_translation(self):
         self.speechHandler = SpeechHandler()
@@ -109,7 +108,7 @@ class Assistant:
     def loop(self):
         while True:
             self.check_pending_commands()
-            if(len(self.speechHandler.last_mention)>0):
+            if(self.speechHandler and len(self.speechHandler.last_mention)>0):
                 self.voice.reproduce_sound("assistantRecognition")
                 texto_a_enviar = self.speechHandler.last_mention.pop(-1)
                 print(f"Texto a enviar: {texto_a_enviar}")
