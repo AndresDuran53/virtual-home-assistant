@@ -25,7 +25,7 @@ class DecisionMaker:
         else:
             return text_received
 
-    def get_device_information(self):
+    def get_device_information(self) -> str:
         important_devices = self.data_controller.get_important_devices()
         calendar_events = self.data_controller.get_calendar_events()
         return important_devices + calendar_events
@@ -48,18 +48,18 @@ class DecisionMaker:
             logger.info(f"Stopping welcoming, no person arrived.")
             return self.handle_no_people_arrived(people_information)
 
-    def create_cats_reminder(self):
+    def create_cats_reminder(self) -> str:
         user_input = FeedCatsReminder.message()
         return user_input
 
-    def handle_people_arriving_home(self, people_arriving_home):
+    def handle_people_arriving_home(self, people_arriving_home) -> str:
         logger.info(f"[People Arriving]: {[person.get_information() for person in people_arriving_home]}")
         device_information = self.get_device_information()
         logger.info(f"[Home Information]: {[device.to_text() for device in device_information]}")
         user_input = WelcomeChat.format_welcome_text(people_arriving_home, device_information)
         return user_input
         
-    def handle_no_people_arrived(self, people_information):
+    def handle_no_people_arrived(self, people_information) -> str:
         people_at_home = UserCommunicationSelector.get_people_at_home(people_information)
         logger.info(f"[People At Home]: {[person.get_information() for person in people_at_home]}")
         user_input = WelcomeGuestChat.format_welcome_text(people_at_home)

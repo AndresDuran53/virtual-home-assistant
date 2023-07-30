@@ -12,8 +12,7 @@ logger = CustomLogging("logs/assistant.log")
 
 def create_assistant(logger, data_config: dict):
     listener_mqtt = ListenerMqtt(data_config)
-    listener_stt = SpeechHandler()
-    listener_stt.execute()
+    #listener_stt = SpeechHandler()
     voice_mqtt = VoiceMqtt(data_config)
     gpt_conversation_processor = GPTConversationProcessor(data_config)
     decision_maker = DecisionMaker(data_config)

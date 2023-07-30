@@ -34,7 +34,8 @@ class SpeechHandler(Listener):
         self.temp_file = NamedTemporaryFile().name
         self.audio_model = self.load_mode(self.args)
         print("Model loaded.\n")
-        self.source = None        
+        self.source = None
+        self.execute()
 
     def load_mode(self,args):
         ONLY_ENGLISH = False
