@@ -5,14 +5,8 @@ from controllers.user_communication_selector import UserCommunicationSelector
 
 logger = CustomLogging("logs/assistant.log")
 
-class MessageProcessor:
-    __instance = None
+class DecisionMaker:
 
-    def __new__(cls, *args, **kwargs):
-        if not cls.__instance:
-            cls.__instance = super().__new__(cls)
-        return cls.__instance
-    
     def __init__(self, data_config: dict):
         self.data_config = data_config
         self.data_controller = DataController(self.data_config)
