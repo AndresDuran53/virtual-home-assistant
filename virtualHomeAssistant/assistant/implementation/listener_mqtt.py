@@ -20,6 +20,8 @@ class ListenerMqtt(Listener):
         if(messageRecieved == "execute"):
             command = self.mqtt_service.get_command_from_topic(topicRecieved)
             if(command): self.pending_commands.append(command)
+        elif(topicRecieved == "assistant/ask"):
+            if(messageRecieved): self.pending_commands.append(messageRecieved)
 
     def get_next_message(self) -> str:
         if(len(self.pending_commands)>0):
