@@ -32,9 +32,13 @@ class HomeAssistantServices:
         self.update_person_state(data)
         return self.person_status
     
-    def get_calendars_events(self):
+    def get_calendars_events(self, calendar_owners:list[str] = None):
         self.update_events_by_calendar()
-        return self.important_calendars
+        if(calendar_owners is None or calendar_owners == []):
+            return self.important_calendars
+        else:
+            shared_calendars = [calendar for calendar in self.important_calendars if calendar.calendar_owner in calendar_owners]
+        return shared_calendars
     
     def get_sensors(self,data = None):
         if(data == None): data = self.last_data
@@ -66,7 +70,7 @@ class HomeAssistantServices:
         history = self.make_request(url, params)
         return history
 
-    def requests_calendar_events(self, calendar_id, future_days=4):
+    def requests_calendar_events(self, calendar_id, future_days=3):
         now = datetime.now()
         actual_time_string = now.strftime("%Y-%m-%d")
         future_time = now + timedelta(days=future_days)

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class WelcomeChat():
-    intro = "please analyze the time of my systems and response with a personalized greeting, respectful but friendly, as Jarvis from Iron Man would but be concise and short on your answer. You can give them advice or show interest in their hobbies to be friendly, Don't forget to notify about the upcoming events:"
+    intro = "please analyze the time of my systems and response with a personalized greeting, as Jarvis from Iron Man would but be concise and short on your answer. You can give them advice, but don't forget to notify about the upcoming events:"
 
     @classmethod
     def format_welcome_text(cls,people_arriving,devices_information):       
@@ -55,7 +55,7 @@ class WelcomeGuestChat():
 
     
 class GoodMorningChat():
-    meeting_description = "We are waking up, please give us a personalized greeting and tell us the time as Jarvis from Iron Man would but be concise and short on your answer, respectful but friendly, without repeating the information I give you. Remember that you must always answer me in Spanish."
+    meeting_description = "We are waking up, please give us a personalized greeting and tell us the time as Jarvis from Iron Man would but be concise and short on your answer, without repeating the information I give you. Remember that you must always answer me in Spanish."
     @classmethod
     def format_good_morning_text(cls,devices_information):
         text_device_information = cls.text_from_list(devices_information)

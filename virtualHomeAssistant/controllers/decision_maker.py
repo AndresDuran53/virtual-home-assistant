@@ -2,6 +2,7 @@ from utils.custom_logging import CustomLogging
 from controllers.data_controller import DataController
 from controllers.chat_controller import WelcomeChat,WelcomeGuestChat,GoodMorningChat,FeedCatsReminder
 from controllers.user_communication_selector import UserCommunicationSelector
+from dto.homeassistant.person import Person
 
 logger = CustomLogging("logs/assistant.log")
 
@@ -25,9 +26,9 @@ class DecisionMaker:
         else:
             return text_received
 
-    def get_device_information(self) -> str:
+    def get_device_information(self, people_arriving_names: list[str] = None) -> str:
         important_devices = self.data_controller.get_important_devices()
-        calendar_events = self.data_controller.get_calendar_events()
+        calendar_events = self.data_controller.get_calendar_events(people_arriving_names)
         return important_devices + calendar_events
 
     def create_good_morning_message(self) -> str:
@@ -52,9 +53,10 @@ class DecisionMaker:
         user_input = FeedCatsReminder.message()
         return user_input
 
-    def handle_people_arriving_home(self, people_arriving_home) -> str:
+    def handle_people_arriving_home(self, people_arriving_home: list[Person]) -> str:
         logger.info(f"[People Arriving]: {[person.get_information() for person in people_arriving_home]}")
-        device_information = self.get_device_information()
+        people_arriving_names = [person.name for person in people_arriving_home]
+        device_information = self.get_device_information(people_arriving_names)
         logger.info(f"[Home Information]: {[device.to_text() for device in device_information]}")
         user_input = WelcomeChat.format_welcome_text(people_arriving_home, device_information)
         return user_input

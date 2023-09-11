@@ -1,6 +1,7 @@
 from dto.homeassistant.person import Person
 
 class PeopleManager():
+    people_list: list[Person]
 
     def __init__(self,people_list):
         self.people_list = people_list

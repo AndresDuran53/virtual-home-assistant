@@ -1,5 +1,6 @@
 from services.homeassistant_services import HomeAssistantServices
 from dto.homeassistant.person import Person
+from dto.homeassistant.calendar import Calendar
 from dto.homeassistant.binary_sensor import BinarySensor
 from dto.homeassistant.people_manager import PeopleManager
 
@@ -16,11 +17,13 @@ class DataController:
         self.sensors_information = self.homeAssistantServices.get_sensors()
         self.general_devices_information = self.homeAssistantServices.get_general_devices()
 
-    def get_people_information(self) -> list:
-        return self.people_information
+    def get_people_information(self) -> list[Person]:
+        people_information = self.homeAssistantServices.get_people_information()
+        return people_information
 
-    def get_calendar_events(self) -> list:
-        return self.calendar_events
+    def get_calendar_events(self,calendar_owners:list[str] = None) -> list[Calendar]:
+        calendar_events = self.homeAssistantServices.get_calendars_events(calendar_owners)
+        return calendar_events
 
     def get_sensors_information(self) -> list:
         return self.sensors_information
