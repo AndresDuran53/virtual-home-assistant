@@ -2,7 +2,7 @@ import openai
 from openai.error import OpenAIError
 import tiktoken
 from utils.custom_logging import CustomLogging
-
+from services.conversation_log import ConversationLog
 
 class OpenAIGPT3:
     def __init__(self, api_key, model, max_tokens_per_requests_sended=500, max_tokens_per_requests_recieved=600, max_tokens_per_day=10000, used_chars_filename='tokensSended.log',initial_conversation=[]):
@@ -13,8 +13,12 @@ class OpenAIGPT3:
         self.max_tokens_per_day = max_tokens_per_day
         self.used_chars_filename = used_chars_filename
         self.model = model
-        self.encoding = tiktoken.encoding_for_model(self.model)
+        try:
+            self.encoding = tiktoken.encoding_for_model(self.model)
+        except:
+            self.encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
         self.initial_conversation = initial_conversation
+        self.conversation_log = ConversationLog()
         self.logger = CustomLogging("logs/assistant.log")
 
     def request_response(self,conversation):
@@ -74,9 +78,12 @@ class OpenAIGPT3:
 
     def welcome_home_chat(self,user_input):
         conversation = self.initial_conversation[:]
-        conversation += [{"role": "user", "content": user_input}]
+        self.conversation_log.new_message("user", user_input)
+        saved_chat = self.conversation_log.get_entries_as_dicts()
+        conversation += saved_chat
         self.logger.debug(f"Conversation Created: {conversation}")
         text_result,total_tokens = self.generate_conversation(conversation)
+        self.conversation_log.new_message("assistant", text_result)
         return text_result,total_tokens
 
     @classmethod

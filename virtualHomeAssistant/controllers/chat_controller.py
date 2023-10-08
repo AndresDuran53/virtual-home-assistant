@@ -15,10 +15,10 @@ class WelcomeChat():
     def people_intro(cls,people_arriving):
         names = [person.name for person in people_arriving]
         if len(names) == 1:
-            return f"Hello Assistant, {names[0]} just arrived home, "+cls.intro
+            return f"[Automatic system notification] Hello Assistant, {names[0]} just arrived home, "+cls.intro
         else:
             all_names = ', '.join(names[:-1]) + ' and ' + names[-1]
-            return f"Hello Assistant, {all_names} just arrived home, "+cls.intro
+            return f"[Automatic system notification] Hello Assistant, {all_names} just arrived home, "+cls.intro
     
     @classmethod
     def get_arriving_format(cls,people_arriving):
@@ -55,7 +55,7 @@ class WelcomeGuestChat():
 
     
 class GoodMorningChat():
-    meeting_description = "We are waking up, please give us a personalized greeting and tell us the time as Jarvis from Iron Man would but be concise and short on your answer, without repeating the information I give you. Remember that you must always answer me in Spanish."
+    meeting_description = "[Automatic system notification] We are waking up, please give us a personalized greeting and tell us the time as Jarvis from Iron Man would but be concise and short on your answer, without repeating the information I give you. Remember that you must always answer me in Spanish."
     @classmethod
     def format_good_morning_text(cls,devices_information):
         text_device_information = cls.text_from_list(devices_information)
@@ -74,7 +74,7 @@ class GoodMorningChat():
         return text
     
 class FeedCatsReminder():
-    message_default = "Now it's time to feed the cats, respond with a friendly warning message reminding Tammy that it's time to feed the cats."
+    message_default = "[Automatic system notification] Now it's time to feed the cats, respond with a short custom reminder for Tammy that it's time to feed the cats."
 
     @classmethod
     def message(cls):
