@@ -21,7 +21,7 @@ class OpenAIGPT3:
         self.conversation_log = ConversationLog()
         self.logger = CustomLogging("logs/assistant.log")
 
-    def request_response(self,conversation):
+    def request_response(self, conversation):
         attempt_counter=0
         _error = None
         while(attempt_counter<3):
@@ -59,7 +59,7 @@ class OpenAIGPT3:
         total_tokens = response.usage["total_tokens"]
         return message,total_tokens
             
-    def count_token_amount(self,prompt):
+    def count_token_amount(self, prompt):
         num_tokens = len(self.encoding.encode(prompt))
         return num_tokens
     
@@ -69,18 +69,21 @@ class OpenAIGPT3:
             input_count += self.count_token_amount(message["content"])
         return input_count
     
-    def can_do_question(self,user_input,max_per_day):
+    def can_do_question(self, user_input, max_per_day):
         input_count = self.count_token_amount(user_input)
         input_count += self.count_initial_conversation()
         if(input_count>self.max_tokens_per_requests_sended): return False
         if(input_count+max_per_day>self.max_tokens_per_day): return False
         return True
 
-    def welcome_home_chat(self,user_input):
+    def welcome_home_chat(self, user_input, independent_message = False):
         conversation = self.initial_conversation[:]
         self.conversation_log.new_message("user", user_input)
         saved_chat = self.conversation_log.get_entries_as_dicts()
-        conversation += saved_chat
+        if(independent_message):
+            conversation.append(saved_chat[-1])
+        else:
+            conversation += saved_chat
         self.logger.debug(f"Conversation Created: {conversation}")
         text_result,total_tokens = self.generate_conversation(conversation)
         self.conversation_log.new_message("assistant", text_result)

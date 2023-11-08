@@ -27,8 +27,9 @@ class Assistant:
             self.logger.info(f"[SST detected] Sending text to conversation processor: {text_to_send}")
             self.start_conversation(text_to_send)
 
-    def start_conversation(self,user_input: str):
-        gpt3_response = self.conversation_processor.send_message(user_input)
+    def start_conversation(self, user_input: str):
+        independent_message = True
+        gpt3_response = self.conversation_processor.send_message(user_input, independent_message)
         if(gpt3_response):
             self.logger.info("Sending response to speakers via mqtt.")
             self.voice.speak(gpt3_response,"es")
