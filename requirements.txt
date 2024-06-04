@@ -1,11 +1,11 @@
-requests
-pytz
-paho-mqtt
-openai
-tiktoken
-numpy
-pyaudio
-SpeechRecognition
+requests==2.28.2
+pytz==2023.3
+paho-mqtt==1.6.1
+openai==0.27.8
+tiktoken==0.3.1
+numpy==1.24.4
+pyaudio==0.2.13
+SpeechRecognition==3.10.0
 --extra-index-url https://download.pytorch.org/whl/cu116
 torch
 git+https://github.com/openai/whisper.git
