@@ -56,7 +56,7 @@ class OpenAIGPT3:
             return _error,total_tokens
         self.logger.info("Response recieved")
         # Obtener respuesta de Davinci
-        message = response.choices[0].message
+        message = response.choices[0].message.content
         if response.usage is not None:
             total_tokens = response.usage.total_tokens
         else:
