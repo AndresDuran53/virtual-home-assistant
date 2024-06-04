@@ -1,13 +1,18 @@
-import openai
-from openai.error import OpenAIError
+from openai import OpenAI
+from openai.types.chat.chat_completion import ChatCompletion, Choice
 import tiktoken
 from utils.custom_logging import CustomLogging
 from services.conversation_log import ConversationLog
 
 class OpenAIGPT3:
+    model: str
+
     def __init__(self, api_key, model, max_tokens_per_requests_sended=500, max_tokens_per_requests_recieved=600, max_tokens_per_day=10000, used_chars_filename='tokensSended.log',initial_conversation=[]):
+        self.logger = CustomLogging("logs/assistant.log")
         self.api_key = api_key
-        openai.api_key = api_key
+        self.client = OpenAI(
+            api_key=api_key
+        )
         self.max_tokens_per_requests_sended = max_tokens_per_requests_sended
         self.max_tokens_per_requests_recieved = max_tokens_per_requests_recieved
         self.max_tokens_per_day = max_tokens_per_day
@@ -16,47 +21,46 @@ class OpenAIGPT3:
         try:
             self.encoding = tiktoken.encoding_for_model(self.model)
         except:
+            self.logger.error(f"Tiktoken was not able to found the model: {self.model}")
             self.encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
         self.initial_conversation = initial_conversation
         self.conversation_log = ConversationLog()
-        self.logger = CustomLogging("logs/assistant.log")
 
-    def request_response(self, conversation):
+    def request_response(self, conversation) -> tuple[ChatCompletion | None, str]:
         attempt_counter=0
         _error = None
         while(attempt_counter<3):
             try:
                 attempt_counter+=1
                 timeout_aux = attempt_counter*20
-                response = openai.ChatCompletion.create(
+                
+                response = self.client.chat.completions.create(
                     model=self.model,
                     max_tokens=self.max_tokens_per_requests_recieved,
                     presence_penalty = 0.2,
                     frequency_penalty = 0.5,
                     temperature = 0.8,
-                    request_timeout=timeout_aux,
+                    timeout=timeout_aux,
                     messages=conversation
                 )
-                return response,None
-            except OpenAIError as e:
-                if isinstance(e, openai.error.Timeout):
-                    self.logger.error(f"Timeout Error trying to create chat completion (attempt_counter {attempt_counter}): {e}")
-                else:
-                    self.logger.error(f"OpenAIError Error trying to create chat completion (attempt_counter {attempt_counter}: {e}")
-            except e:
-                self.logger.error(f"Unexpected Error trying to create chat completion (attempt_counter {attempt_counter}: {e}")
+                return response,''
+            except Exception as error:
+                self.logger.error(f"Unexpected Error trying to create chat completion (attempt_counter {attempt_counter}: {error}")
         _error = "There is an issue with the artificial intelligence language model."
         return None,_error
         
     def generate_conversation(self, conversation):
         total_tokens = 0
         response,_error = self.request_response(conversation)
-        if(_error is not None):
+        if(not response):
             return _error,total_tokens
         self.logger.info("Response recieved")
         # Obtener respuesta de Davinci
-        message = response.choices[0]["message"]["content"]
-        total_tokens = response.usage["total_tokens"]
+        message = response.choices[0].message
+        if response.usage is not None:
+            total_tokens = response.usage.total_tokens
+        else:
+            total_tokens = 200
         return message,total_tokens
             
     def count_token_amount(self, prompt):
