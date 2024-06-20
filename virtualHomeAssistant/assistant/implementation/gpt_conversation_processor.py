@@ -19,15 +19,15 @@ class GPTConversationProcessor(ConversationProcessor):
         logger.info(f"[Tokens used today]: {max_per_day}")
         return self.chat_service.can_do_question(message,max_per_day)
 
-    def send_message(self, message: str, independent_message = False) -> dict:
+    def send_message(self, message: str, independent_message = True) -> str | None:
         if(message == None and message == ""): return
         if(self.can_send_new_message(message)):
             logger.info("Sending request to openai api.")
-            text_result,total_tokens = self.chat_service.welcome_home_chat(message,independent_message)
-            logger.info(f"[GPT3 Response]: {text_result}")
+            response, total_tokens = self.chat_service.send_message(message,independent_message)
+            logger.info(f"[GPT3 Response]: {response}")
             self.token_manager.increase_value_for_today_by(total_tokens)
             logger.info(f"[Total tokens used]: {total_tokens}")
-            return text_result
+            return response
         else:
             logger.error("Too many tokens to request.")
             return None
