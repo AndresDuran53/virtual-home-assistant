@@ -8,8 +8,10 @@ class Event():
         self.start_time = datetime_from_str_event(start_time)
         self.end_time = datetime_from_str_event(end_time)
 
-    def to_text(self):
+    def to_text(self) -> str:
         datetime_output_format="%A %b %d, %Y at %I:%M%p"
+        if(not self.start_time or not self.end_time): 
+            return ""
         if(self.start_time != self.end_time):
             start_time = self.start_time.strftime(datetime_output_format)
             end_time = self.end_time.strftime(datetime_output_format)
@@ -35,5 +37,5 @@ class Event():
         )
     
     @staticmethod
-    def sort_by_start_time(events):
+    def sort_by_start_time(events: list):
         return sorted(events, key=lambda x: x.start_time)

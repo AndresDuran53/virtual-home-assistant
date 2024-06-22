@@ -1,7 +1,7 @@
 import pytz
 from datetime import datetime, timezone, timedelta
 
-def datetime_from_str_person(date_str) -> datetime:
+def datetime_from_str_person(date_str: str) -> datetime | None:
     if not date_str:
         return None
     datetime_obj = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%f%z").replace(tzinfo=pytz.UTC)

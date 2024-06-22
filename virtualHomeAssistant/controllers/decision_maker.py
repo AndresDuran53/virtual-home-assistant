@@ -12,7 +12,7 @@ class DecisionMaker:
         self.data_config = data_config
         self.data_controller = DataController(self.data_config)
 
-    def evaluate_default_commands(self, text_received: str) -> str:
+    def evaluate_default_commands(self, text_received: str) -> str | None:
         if not text_received:
             return None
         elif text_received == "Good Morning":

@@ -1,25 +1,31 @@
 from utils.datetime_utils import datetime_from_str_person
+from datetime import datetime
 
 class PersonLocationStatus:
-    def __init__(self, entity_id, state, last_changed, last_updated):
+    entity_id: str
+    state: str
+    last_changed: datetime
+    last_updated: datetime
+
+    def __init__(self, entity_id: str, state: str, last_changed: str, last_updated: str):
         self.entity_id = entity_id
         self.state = state
-        self.last_changed = datetime_from_str_person(last_changed)
-        self.last_updated = datetime_from_str_person(last_updated)
+        self.last_changed = datetime_from_str_person(last_changed) # type: ignore
+        self.last_updated = datetime_from_str_person(last_updated) # type: ignore
         
 
     @classmethod
-    def from_json(cls, json_data):
-        return cls(
-            entity_id=json_data['entity_id'],
-            state=json_data['state'],
-            last_changed=json_data['last_changed'],
-            last_updated=json_data['last_updated']
+    def from_json(cls, json_data: dict):
+        return PersonLocationStatus(
+            entity_id=json_data.get('entity_id', None),
+            state=json_data.get('state', None),
+            last_changed=json_data.get('last_changed', None),
+            last_updated=json_data.get('last_updated', None)
         )
     
     @classmethod
-    def create_person_statuses(cls,json_list):
-        person_statuses = []
+    def create_person_statuses(cls, json_list: list):
+        person_statuses: list[PersonLocationStatus] = []
         for json_data in json_list:
             for data in json_data:
                 person_status = PersonLocationStatus.from_json(data)
@@ -28,8 +34,9 @@ class PersonLocationStatus:
         return person_statuses
     
     @classmethod
-    def find_statuses(cls,person_statuses):
-        if(len(person_statuses)==0):
+    def find_statuses(cls, person_statuses_aux: list):
+        person_statuses: list[PersonLocationStatus] = person_statuses_aux
+        if(not person_statuses):
             return None
         latest_home_status = next((status for status in person_statuses if status.state == "home"), None)
         if latest_home_status:
