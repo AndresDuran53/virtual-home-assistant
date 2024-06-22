@@ -24,11 +24,10 @@ class Device():
 
     def to_text(self) -> str:
         name = self.name
-        device_type = self.device_type
         if(self.state): state = self.state
         else: state = UNAVAILABLE
         if(self.state == IDLE): state = NON_OPERATIONAL
-        return(f"{device_type} - {name}: {state}")
+        return(f"{name}: {state}")
     
     @classmethod
     def exclude_non_important_from_list(cls, list_general_device: list):
