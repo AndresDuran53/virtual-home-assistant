@@ -16,6 +16,7 @@ class DataController:
         self.calendar_events = self.homeAssistantServices.get_calendars_events()
         self.sensors_information = self.homeAssistantServices.get_sensors()
         self.general_devices_information = self.homeAssistantServices.get_general_devices()
+        self.datetime_registers_information = self.homeAssistantServices.get_datetime_registers()
 
     def get_people_information(self) -> list[Person]:
         people_information = self.homeAssistantServices.get_people_information()
@@ -40,5 +41,6 @@ class DataController:
         final_list = []
         final_list += self.get_sensors_information()
         final_list += [general_device for general_device in self.general_devices_information if not (general_device.needs_to_be_ignore())]
+        final_list += [datetime_register for datetime_register in self.datetime_registers_information if not (datetime_register.needs_to_be_ignore())]
         return final_list
 

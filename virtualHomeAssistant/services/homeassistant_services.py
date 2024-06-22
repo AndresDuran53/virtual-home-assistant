@@ -8,6 +8,7 @@ from dto.homeassistant.sensor import Sensor
 from dto.homeassistant.binary_sensor import BinarySensor
 from dto.homeassistant.person import Person
 from dto.homeassistant.person_location_status import PersonLocationStatus
+from dto.homeassistant.datetime_register import DatetimeRegister
 
 class HomeAssistantServices:
     url: str
@@ -17,11 +18,12 @@ class HomeAssistantServices:
     sensors: list[Sensor]
     binary_sensors: list[BinarySensor]
     general_devices: list[Device]
+    datetime_registers: list[DatetimeRegister]
 
-    def __init__(self, url, token, people, calendars, list_sensors, binary_sensors, general_devices):
+    def __init__(self, url, token, people, calendars, list_sensors, binary_sensors, general_devices, list_datetime_register):
         self.url = url
         self.token = token
-        self._filling_list_devices(people, calendars, list_sensors, binary_sensors, general_devices,)
+        self._filling_list_devices(people, calendars, list_sensors, binary_sensors, general_devices, list_datetime_register)
         self.update_data()
 
     def _filling_list_devices(self, 
@@ -29,12 +31,14 @@ class HomeAssistantServices:
                               list_calendar: list[dict], 
                               list_sensors: list[dict], 
                               list_binary_sensors: list[dict], 
-                              list_general_devices: list[dict]):
+                              list_general_devices: list[dict],
+                              list_datetime_register: list[dict]):
         self.person_status = Person.list_from_dict(people)
         self.important_calendars = Calendar.list_from_dict(list_calendar)
         self.sensors = Sensor.list_from_dict(list_sensors)
         self.binary_sensors = BinarySensor.list_from_dict(list_binary_sensors)
         self.general_devices = Device.list_from_dict(list_general_devices)
+        self.datetime_registers = DatetimeRegister.list_from_dict(list_datetime_register)
 
     def update_data(self):
         self.last_data=self.requests_general_data()
@@ -62,6 +66,11 @@ class HomeAssistantServices:
         if(data == None): data = self.last_data
         self.update_general_devices(data)
         return self.general_devices
+    
+    def get_datetime_registers(self, data: list[dict] = []) -> list[DatetimeRegister]:
+        if(not data): data = self.last_data
+        self.update_datetime_registers(data)
+        return self.datetime_registers
     
     def make_request(self, url: str, params = None):
         headers = {
@@ -119,6 +128,13 @@ class HomeAssistantServices:
             if(device_found):
                 device_found.set_state(device_data['state'])
 
+    def update_datetime_registers(self, data: list[dict]):
+        entity_by_id = {entity.entity_id: entity for entity in self.datetime_registers}
+        for device_data in data:
+            entity_found = entity_by_id.get(device_data['entity_id'])
+            if(entity_found):
+                entity_found.set_state(device_data['state'])
+
     def update_person_state(self, data: list[dict]):
         person_state_by_id = {person.entity_id: person for person in self.person_status}
         for person_data in data:
@@ -152,4 +168,5 @@ class HomeAssistantServices:
         binary_sensors = config.get('binarySensors')
         general_devices = config.get('generalDevices')
         list_sensors = config.get('sensors')
-        return HomeAssistantServices(url, ha_token, people, calendars, list_sensors, binary_sensors, general_devices)
+        list_datetime_register = config.get('datetimeRegister')
+        return HomeAssistantServices(url, ha_token, people, calendars, list_sensors, binary_sensors, general_devices, list_datetime_register)
