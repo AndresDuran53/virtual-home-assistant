@@ -26,7 +26,7 @@ class DecisionMaker:
         else:
             return text_received
 
-    def get_device_information(self, people_arriving_names: list[str] = None) -> str:
+    def get_device_information(self, people_arriving_names: list[str] = []) -> list:
         important_devices = self.data_controller.get_important_devices()
         calendar_events = self.data_controller.get_calendar_events(people_arriving_names)
         return important_devices + calendar_events
@@ -48,6 +48,7 @@ class DecisionMaker:
         elif notify_no_people:
             logger.info(f"Stopping welcoming, no person arrived.")
             return self.handle_no_people_arrived(people_information)
+        return ""
 
     def create_cats_reminder(self) -> str:
         user_input = FeedCatsReminder.message()

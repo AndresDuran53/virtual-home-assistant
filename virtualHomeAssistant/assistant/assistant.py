@@ -39,7 +39,3 @@ class Assistant:
         while True:
             self.listen()
             time.sleep(0.1)
-
-if __name__ == '__main__':
-    assistant = Assistant()
-    assistant.loop()
