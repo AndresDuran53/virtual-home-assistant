@@ -112,14 +112,14 @@ class HomeAssistantServices:
         for sensor_aux in self.sensors:
             sensor_data = valid_sensors_by_id.get(sensor_aux.entity_id)
             if(sensor_data):
-                sensor_aux.set_value(sensor_data['state'],sensor_data['attributes'].get('unit_of_measurement'))
+                sensor_aux.set_state(sensor_data['state'],sensor_data['attributes'].get('unit_of_measurement'))
 
     def update_binary_sensors(self, data):
         valid_sensors_by_id = {sensor['entity_id']: sensor for sensor in data if BinarySensor.is_valid(sensor)}
         for binary_sensor in self.binary_sensors:
             sensor_data = valid_sensors_by_id.get(binary_sensor.entity_id)
             if(sensor_data):
-                binary_sensor.set_value(sensor_data['state'],sensor_data['attributes'].get('unit_of_measurement'))
+                binary_sensor.set_state(sensor_data['state'],sensor_data['attributes'].get('unit_of_measurement'))
 
     def update_general_devices(self, data):
         general_devices_by_id = {device.entity_id: device for device in self.general_devices}

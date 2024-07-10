@@ -1,22 +1,12 @@
 from datetime import datetime
+from dto.homeassistant.entity import Entity
 
-UNAVAILABLE = "unavailable"
-
-class DatetimeRegister():
-    entity_id: str
-    name: str
-    state: str
+class DatetimeRegister(Entity):
     ignoring_until_minutes_ago: int
 
-    def __init__(self, entity_id: str, name: str, state = "", ignoring_until_minutes_ago: str = "0"):
-        self.entity_id = entity_id
-        self.name = name
-        self.set_state(state)
+    def __init__(self, entity_id: str, name: str, state: str = "", ignoring_until_minutes_ago: str = "0"):
+        super().__init__(entity_id, name, state)
         self.set_ignoring_times(ignoring_until_minutes_ago)
-
-    def set_state(self, state: str):
-        if (not state): self.state = UNAVAILABLE
-        else: self.state = state
 
     def set_ignoring_times(self, ignoring_until_minutes_ago: str):
         if (not ignoring_until_minutes_ago): self.ignoring_until_minutes_ago = 0
@@ -43,7 +33,7 @@ class DatetimeRegister():
     def to_text(self) -> str:
         name = self.name
         if(self.state): state = self.state
-        else: state = UNAVAILABLE
+        else: state = self.UNAVAILABLE
         return(f"Accion Necesaria - {name}: {state}")
     
     @classmethod

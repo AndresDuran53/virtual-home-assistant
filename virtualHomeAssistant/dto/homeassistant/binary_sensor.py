@@ -1,56 +1,40 @@
 from dto.homeassistant.sensor import Sensor
 
-UNAVAILABLE = "unavailable"
-UNKNOWN = "unknown"
-
 class BinarySensor(Sensor):
-    entity_id: str
-    name: str
+    entity_class = 'binary_sensor.'
     offValue: str
     onValue: str
-    value: str
 
-    def __init__(self, entity_id: str, name: str, offValue = 'off', onValue = 'on'):
-        self.entity_id = entity_id
-        self.name = name
+    def __init__(self, entity_id: str, name: str, state: str = '', ignoring_states: list[str] = [], offValue = 'off', onValue = 'on'):
+        super().__init__(entity_id, name, state, ignoring_states)
         self.offValue = offValue
         self.onValue = onValue
-        self.value = UNAVAILABLE
-
-    def set_value(self, value: str, unit: str):
-        self.value = value
 
     def get_binary_value(self) -> str:
-        if(self.value == "off"): value = self.offValue
-        elif(self.value == "on"): value = self.onValue
-        else: value = self.value
-        return value
+        if(self.state == "off"): state = self.offValue
+        elif(self.state == "on"): state = self.onValue
+        else: state = self.state
+        return state
 
     def to_text(self) -> str:
         name = self.name
-        value = self.get_binary_value()
-        return(f"{name}: {value}")
-
-    @classmethod
-    def is_valid(cls, sensor_data: dict) -> bool:
-        is_not_none = sensor_data.get('state') is not None
-        is_a_sensor = sensor_data.get('entity_id','').startswith('binary_sensor.')
-        return is_not_none and is_a_sensor
+        state = self.get_binary_value()
+        return(f"{name}: {state}")
     
     @classmethod
     def from_dict(cls, data: dict):
-        return BinarySensor(
-            data.get("entity_id",None),
-            data.get("name",None),
-            data.get("offValue",None),
-            data.get("onValue",None)
-        )
-
-    @classmethod
-    def list_from_dict(cls, data: list[dict]):
-        final_list = []
-        for binary_sensor_aux in data:
-            binary_sensor_id: str = binary_sensor_aux.get('entity_id','')
-            if(binary_sensor_id.startswith('binary_sensor.')):
-                final_list.append(cls.from_dict(binary_sensor_aux))
-        return final_list
+        entity_id = data.get("entity_id")
+        name = data.get("name",entity_id)
+        state = data.get("state","")
+        ignoring_states = data.get("ignoringStates", [])
+        offValue = data.get("offValue", "off")
+        onValue = data.get("onValue", "on")
+        if(entity_id and name and offValue and onValue):
+            return BinarySensor(
+                entity_id,
+                name,
+                state,
+                ignoring_states,
+                offValue,
+                onValue
+            )

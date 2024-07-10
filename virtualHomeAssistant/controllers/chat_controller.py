@@ -40,6 +40,8 @@ class WelcomeChat():
     
 
 class WelcomeGuestChat():
+    intro = "[Automatic system notification] A guest has enter the house, let them know that you already notify me and that everything is being recorder."
+
     @classmethod
     def format_welcome_text(cls,owners_at_home):
         if(len(owners_at_home)>0):
@@ -55,7 +57,7 @@ class WelcomeGuestChat():
 
     
 class GoodMorningChat():
-    meeting_description = "[Automatic system notification] We are waking up, please give us a personalized greeting and tell us the time as Jarvis from Iron Man would but be concise and short on your answer, without repeating the information I give you. Remember that you must always answer me in Spanish."
+    meeting_description = "[Automatic system notification] We Andres and Tammy are waking up, please give them a personalized greeting and tell them the time and all the important information. Remember that you must always answer me in Spanish."
     @classmethod
     def format_good_morning_text(cls,devices_information):
         text_device_information = cls.text_from_list(devices_information)
