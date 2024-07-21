@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class WelcomeChat():
-    intro = "please analyze the time of my systems and response with a personalized greeting, as Jarvis from Iron Man would but be concise and short on your answer. You can give them advice, but don't forget to notify about the upcoming events:"
+    intro = "please analyze the time of my systems and response with a personalized greeting, as Jarvis from Iron Man would:"
 
     @classmethod
     def format_welcome_text(cls,people_arriving,devices_information):       
