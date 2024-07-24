@@ -26,9 +26,9 @@ class DecisionMaker:
         else:
             return text_received
 
-    def get_device_information(self, people_arriving_names: list[str] = []) -> list:
+    def get_device_information(self, people_names: list[str] = []) -> list:
         important_devices = self.data_controller.get_important_devices()
-        calendar_events = self.data_controller.get_calendar_events(people_arriving_names)
+        calendar_events = self.data_controller.get_calendar_events(people_names)
         return important_devices + calendar_events
 
     def create_good_morning_message(self) -> str:
