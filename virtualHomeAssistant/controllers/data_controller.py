@@ -2,7 +2,7 @@ from datetime import datetime
 from services.homeassistant_services import HomeAssistantServices
 from dto.homeassistant.person import Person
 from dto.homeassistant.calendar import Calendar
-from dto.homeassistant.people_manager import PeopleManager
+from controllers.people_manager import PeopleManager
 
 
 class DataController:
