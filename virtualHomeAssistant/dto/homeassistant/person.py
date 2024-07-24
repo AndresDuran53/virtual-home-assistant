@@ -1,9 +1,12 @@
 from datetime import datetime
 from utils.datetime_utils import datetime_from_str_person
+from dto.homeassistant.entity import Entity
 
 STATE_HOME = "home"
 
-class Person():
+class Person(Entity):
+    entity_class = 'person.'
+
     def __init__(self, 
                  entity_id: str, 
                  name: str, 
@@ -11,18 +14,19 @@ class Person():
                  last_changed: str = '', 
                  last_updated: str = '', 
                  last_not_home_change: datetime | str = ''):
-        self.entity_id = entity_id
-        self.name = name
+        super().__init__(entity_id, name, state, ignoring_states=[])
         self.set_state(state, last_changed, last_updated, last_not_home_change)
 
-    def set_state(self, state: str, last_changed: str, last_updated: str, last_not_home_change: datetime | str):
+    def set_state(self, state: str, last_changed: str = '', last_updated: str = '', last_not_home_change: datetime | str = ''):
         self.state = state
-        self.last_changed = datetime_from_str_person(last_changed)
-        self.last_updated = datetime_from_str_person(last_updated)
-        if(isinstance(last_not_home_change,datetime)):
-            self.last_not_home_change = last_not_home_change
-        else:
-            self.last_not_home_change = datetime_from_str_person(last_not_home_change)
+        if(last_changed): self.last_changed = datetime_from_str_person(last_changed)
+        if(last_updated): self.last_updated = datetime_from_str_person(last_updated)
+
+        if(last_not_home_change):
+            if(isinstance(last_not_home_change,datetime)):
+                self.last_not_home_change = last_not_home_change
+            else:
+                self.last_not_home_change = datetime_from_str_person(last_not_home_change)
     
     def is_home(self) -> bool:
         if(self.state):
@@ -82,11 +86,3 @@ class Person():
             data.get("last_changed",None),
             data.get("last_updated",None)
         )
-    
-    @classmethod
-    def list_from_dict(cls, data: list[dict]):
-        final_list = []
-        for person in data:
-            if(person['entity_id'].startswith('person.')):
-                final_list.append(cls.from_dict(person))
-        return final_list

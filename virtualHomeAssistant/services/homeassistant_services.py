@@ -34,11 +34,11 @@ class HomeAssistantServices:
                               list_general_devices: list[dict],
                               list_datetime_register: list[dict]):
         self.person_status = Person.list_from_dict(people)
-        self.important_calendars = Calendar.list_from_dict(list_calendar)
         self.sensors = Sensor.list_from_dict(list_sensors)
         self.binary_sensors = BinarySensor.list_from_dict(list_binary_sensors)
         self.general_devices = Device.list_from_dict(list_general_devices)
         self.datetime_registers = DatetimeRegister.list_from_dict(list_datetime_register)
+        self.important_calendars = Calendar.list_from_dict(list_calendar)
 
     def update_data(self):
         self.last_data=self.requests_general_data()
