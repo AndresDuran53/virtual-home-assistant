@@ -18,7 +18,7 @@ class DecisionMaker:
         elif text_received == "Good Morning":
             return self.create_good_morning_message()
         elif text_received == "Welcome Car":
-            return self.create_welcome_chat(True)
+            return self.create_welcome_chat()
         elif text_received == "Welcome Person":
             return self.create_welcome_chat()
         elif text_received == "Feed Cats Reminder":
@@ -38,17 +38,16 @@ class DecisionMaker:
         user_input = GoodMorningChat.format_good_morning_text(device_information)
         return user_input
 
-    def create_welcome_chat(self, notify_no_people = False) -> str:
+    def create_welcome_chat(self) -> str:
         logger.info(f"Creating welcoming message.")
         self.data_controller.update_information()
         people_information = self.data_controller.get_people_information()
         people_arriving_home = UserCommunicationSelector.get_people_arriving_home(people_information)
         if len(people_arriving_home) > 0:
             return self.handle_people_arriving_home(people_arriving_home)
-        elif notify_no_people:
+        else:
             logger.info(f"Stopping welcoming, no person arrived.")
             return self.handle_no_people_arrived(people_information)
-        return ""
 
     def create_cats_reminder(self) -> str:
         user_input = FeedCatsReminder.message()
