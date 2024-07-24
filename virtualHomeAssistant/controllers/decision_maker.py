@@ -1,8 +1,6 @@
 from utils.custom_logging import CustomLogging
 from controllers.data_controller import DataController
 from controllers.chat_controller import WelcomeChat,WelcomeGuestChat,GoodMorningChat,FeedCatsReminder
-from controllers.user_communication_selector import UserCommunicationSelector
-from dto.homeassistant.person import Person
 
 logger = CustomLogging("logs/assistant.log")
 
@@ -26,43 +24,37 @@ class DecisionMaker:
         else:
             return text_received
 
-    def get_device_information(self, people_names: list[str] = []) -> list:
-        important_devices = self.data_controller.get_important_devices()
-        calendar_events = self.data_controller.get_calendar_events(people_names)
-        return important_devices + calendar_events
-
     def create_good_morning_message(self) -> str:
         logger.info(f"Creating good morning message.")
-        device_information = self.get_device_information()
-        logger.info(f"[Home Information]: {[device.to_text() for device in device_information]}")
-        user_input = GoodMorningChat.format_good_morning_text(device_information)
+        important_information_text = self.data_controller.get_important_information()
+        logger.info(f"[Home Information]: {important_information_text}")
+        user_input = GoodMorningChat.format_good_morning_text(important_information_text)
         return user_input
 
     def create_welcome_chat(self) -> str:
         logger.info(f"Creating welcoming message.")
-        self.data_controller.update_information()
-        people_information = self.data_controller.get_people_information()
-        people_arriving_home = UserCommunicationSelector.get_people_arriving_home(people_information)
-        if len(people_arriving_home) > 0:
-            return self.handle_people_arriving_home(people_arriving_home)
+        is_people_arriving_home = self.data_controller.is_people_arriving_home()
+        if is_people_arriving_home:
+            logger.info(f"Welcoming to owner arriving.")
+            return self.handle_owner_arriving_home()
         else:
-            logger.info(f"Stopping welcoming, no person arrived.")
-            return self.handle_no_people_arrived(people_information)
+            logger.info(f"Welcoming guest, no owner arrived.")
+            return self.handle_guest_arrived()
+
+    def handle_owner_arriving_home(self) -> str:
+        people_arriving_names = self.data_controller.get_people_names_arriving_home()
+        logger.info(f"[People Arriving]: {[person_name for person_name in people_arriving_names]}")
+        important_information_text = self.data_controller.get_important_information(True)
+        logger.info(f"[Home Information]: {important_information_text}")
+        user_input = WelcomeChat.format_welcome_text(people_arriving_names, important_information_text)
+        return user_input
+        
+    def handle_guest_arrived(self) -> str:
+        people_names_at_home = self.data_controller.get_people_names_at_home()
+        logger.info(f"[People At Home]: {[person_name for person_name in people_names_at_home]}")
+        user_input = WelcomeGuestChat.format_welcome_text(people_names_at_home)
+        return user_input
 
     def create_cats_reminder(self) -> str:
         user_input = FeedCatsReminder.message()
-        return user_input
-
-    def handle_people_arriving_home(self, people_arriving_home: list[Person]) -> str:
-        logger.info(f"[People Arriving]: {[person.get_information() for person in people_arriving_home]}")
-        people_arriving_names = [person.name for person in people_arriving_home]
-        device_information = self.get_device_information(people_arriving_names)
-        logger.info(f"[Home Information]: {[device.to_text() for device in device_information]}")
-        user_input = WelcomeChat.format_welcome_text(people_arriving_home, device_information)
-        return user_input
-        
-    def handle_no_people_arrived(self, people_information) -> str:
-        people_at_home = UserCommunicationSelector.get_people_at_home(people_information)
-        logger.info(f"[People At Home]: {[person.get_information() for person in people_at_home]}")
-        user_input = WelcomeGuestChat.format_welcome_text(people_at_home)
         return user_input

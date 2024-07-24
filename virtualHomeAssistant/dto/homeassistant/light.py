@@ -1,6 +1,6 @@
-from dto.homeassistant.entity import Entity
+from dto.homeassistant.device import Device
 
-class Light(Entity):
+class Light(Device):
     entity_class = 'light.'
 
     def __init__(self, entity_id: str, name: str, state: str = "", ignoring_states: list[str] = []):
