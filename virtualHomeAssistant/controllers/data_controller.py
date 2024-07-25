@@ -40,7 +40,7 @@ class DataController:
     
     def get_important_devices(self) -> list:
         final_list = []
-        final_list += self.get_sensors_information()
+        final_list += [sensor for sensor in self.sensors_information if not (sensor.needs_to_be_ignore())]
         final_list += [general_device for general_device in self.general_devices_information if not (general_device.needs_to_be_ignore())]
         final_list += [datetime_register for datetime_register in self.datetime_registers_information if not (datetime_register.needs_to_be_ignore())]
         return final_list
