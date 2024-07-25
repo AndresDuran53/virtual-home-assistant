@@ -46,7 +46,6 @@ class DataController:
         return final_list
     
     def get_people_at_home(self) -> list[Person]:
-        self.update_information()
         people_at_home = self.people_manager.get_people_at_home()
         return people_at_home
     
@@ -56,7 +55,6 @@ class DataController:
         return people_names_at_home
     
     def get_people_arriving_home(self) -> list[Person]:
-        self.update_information()
         people_arriving_home = self.people_manager.get_people_just_get_home()
         return people_arriving_home
     
@@ -72,7 +70,6 @@ class DataController:
 
     def get_important_information(self, owner_arrived: bool = False) -> str:
         people_names = []
-        self.update_information()
 
         if(owner_arrived):
             people_names = self.get_people_names_arriving_home()

@@ -11,6 +11,7 @@ class DecisionMaker:
         self.data_controller = DataController(self.data_config)
 
     def evaluate_default_commands(self, text_received: str) -> str | None:
+        self.data_controller.update_information()
         if not text_received:
             return None
         elif text_received == "Good Morning":
