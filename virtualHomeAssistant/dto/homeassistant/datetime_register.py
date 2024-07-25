@@ -2,6 +2,7 @@ from datetime import datetime
 from dto.homeassistant.entity import Entity
 
 class DatetimeRegister(Entity):
+    entity_class = 'input_datetime.'
     ignoring_until_minutes_ago: int
 
     def __init__(self, entity_id: str, name: str, state: str = "", ignoring_until_minutes_ago: str = "0"):
@@ -20,8 +21,11 @@ class DatetimeRegister(Entity):
         if(not self.state):
             return True
         
-        last_change_time = datetime.strptime(self.state, '%Y-%m-%d %H:%M:%S')
-        if(not last_change_time): 
+        try:
+            last_change_time = datetime.strptime(self.state, '%Y-%m-%d %H:%M:%S')
+            if(not last_change_time): 
+                return True
+        except:
             return True
         
         datetime_now = datetime.now()

@@ -1,6 +1,8 @@
 from datetime import datetime
 from services.homeassistant_services import HomeAssistantServices
 from dto.homeassistant.person import Person
+from dto.homeassistant.sensor import Sensor
+from dto.homeassistant.binary_sensor import BinarySensor
 from dto.homeassistant.calendar import Calendar
 from controllers.people_manager import PeopleManager
 
@@ -29,6 +31,9 @@ class DataController:
 
     def get_sensors_information(self) -> list:
         return self.sensors_information
+    
+    def get_datetime_registers(self) -> list:
+        return self.datetime_registers_information
     
     def get_general_devices_information(self) -> list:
         return self.general_devices_information
@@ -87,5 +92,4 @@ class DataController:
                 text+=f"\n"
                 text += f"- {element.to_text()}"
         return text
-    
     

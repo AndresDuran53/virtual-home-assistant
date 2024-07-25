@@ -20,6 +20,7 @@ def main():
     test_sensors_information(data_controller)
     test_general_devices_information(data_controller)
     test_people_arriving_home(data_controller)
+    test_datetime_register(data_controller)
     test_important_devices(data_controller)
 
 def test_people_information(data_controller:DataController):
@@ -51,6 +52,12 @@ def test_people_arriving_home(data_controller:DataController):
     people_arriving_home: list[Person] = data_controller.get_people_arriving_home()
     for person in people_arriving_home:
         print(person.get_information())
+
+def test_datetime_register(data_controller:DataController):
+    print("\n*[TEST] test_datetime_register")
+    datetime_registers = data_controller.get_datetime_registers()
+    for datetime_register in datetime_registers:
+        print(datetime_register.to_text())
 
 def test_important_devices(data_controller:DataController):
     print("\n*[TEST] test_important_devices")

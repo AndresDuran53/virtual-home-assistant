@@ -40,38 +40,6 @@ class HomeAssistantServices:
         self.datetime_registers = DatetimeRegister.list_from_dict(list_datetime_register)
         self.important_calendars = Calendar.list_from_dict(list_calendar)
 
-    def update_data(self):
-        self.last_data=self.requests_general_data()
-    
-    def get_people_information(self, data = None) -> list[Person]:
-        if(not data): data = self.last_data
-        self.update_person_state(data)
-        return self.person_status
-    
-    def get_calendars_events(self, calendar_owners:list[str] = []) -> list[Calendar]:
-        self.update_events_by_calendar()
-        if(not calendar_owners):
-            return self.important_calendars
-        else:
-            shared_calendars = [calendar for calendar in self.important_calendars if calendar.calendar_owner in calendar_owners]
-        return shared_calendars
-    
-    def get_sensors(self, data = None) -> list[Sensor]:
-        if(data == None): data = self.last_data
-        self.update_binary_sensors(data)
-        self.update_sensors(data)
-        return self.sensors + self.binary_sensors
-    
-    def get_general_devices(self, data = None) -> list[Device]:
-        if(data == None): data = self.last_data
-        self.update_general_devices(data)
-        return self.general_devices
-    
-    def get_datetime_registers(self, data: list[dict] = []) -> list[DatetimeRegister]:
-        if(not data): data = self.last_data
-        self.update_datetime_registers(data)
-        return self.datetime_registers
-    
     def make_request(self, url: str, params = None):
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -91,58 +59,59 @@ class HomeAssistantServices:
         history = self.make_request(url, params)
         return history
 
-    def requests_calendar_events(self, calendar_id: str, future_days = 3) -> list[Event]:
-        now = datetime.now()
-        actual_time_string = now.strftime("%Y-%m-%d")
-        future_time = now + timedelta(days=future_days)
-        future_time_string = future_time.strftime("%Y-%m-%d")
-        events_filter = f"start={actual_time_string}&end={future_time_string}"
-        local_calendar_url = f"{self.url}/calendars/{calendar_id}?{events_filter}"
-        list_events_data = self.make_request(local_calendar_url)
-        list_events = [Calendar.create_event_from_json(calendar_id, event) for event in list_events_data]
-        return list_events
+    def update_data(self):
+        self.last_data=self.requests_general_data()
+        self.update_sensors(self.last_data)
+        self.update_events_by_calendar()
     
-    def update_events_by_calendar(self):
-        for calendar in self.important_calendars:
-            calendar_id = calendar.calendar_id
-            calendar.set_events(self.requests_calendar_events(calendar_id))
-
+    def get_people_information(self) -> list[Person]:
+        return self.person_status
+        
+    def get_sensors(self) -> list[Sensor]:
+        return self.sensors + self.binary_sensors
+    
+    def get_general_devices(self) -> list[Device]:
+        return self.general_devices
+    
+    def get_datetime_registers(self) -> list[DatetimeRegister]:
+        return self.datetime_registers
+    
+    def get_calendars_events(self, calendar_owners:list[str] = []) -> list[Calendar]:
+        if(not calendar_owners):
+            return self.important_calendars
+        else:
+            shared_calendars = [calendar for calendar in self.important_calendars if calendar.calendar_owner in calendar_owners]
+        return shared_calendars
+    
     def update_sensors(self, data):
-        valid_sensors_by_id = {sensor['entity_id']: sensor for sensor in data if Sensor.is_valid(sensor)}
-        for sensor_aux in self.sensors:
-            sensor_data = valid_sensors_by_id.get(sensor_aux.entity_id)
-            if(sensor_data):
-                sensor_aux.set_state(sensor_data['state'],sensor_data['attributes'].get('unit_of_measurement'))
+        for entity_data in data:
+            
+            if (Sensor.is_valid(entity_data)):
+                for sensor_aux in self.sensors:
+                    if(sensor_aux.entity_id == entity_data['entity_id']):
+                        sensor_aux.set_state(entity_data['state'],entity_data['attributes'].get('unit_of_measurement'))
+            
+            elif (BinarySensor.is_valid(entity_data)):
+                for sensor_aux in self.binary_sensors:
+                    if(sensor_aux.entity_id == entity_data['entity_id']):
+                        sensor_aux.set_state(entity_data['state'],entity_data['attributes'].get('unit_of_measurement'))
+            
+            elif (Person.is_valid(entity_data)):
+                for sensor_aux in self.person_status:
+                    if(sensor_aux.entity_id == entity_data['entity_id']):
+                        last_not_home_change = self.get_last_not_home_change(entity_data.get('entity_id'))
+                        if(last_not_home_change):
+                            sensor_aux.set_state(entity_data['state'],entity_data['last_changed'],entity_data['last_updated'],last_not_home_change)
 
-    def update_binary_sensors(self, data):
-        valid_sensors_by_id = {sensor['entity_id']: sensor for sensor in data if BinarySensor.is_valid(sensor)}
-        for binary_sensor in self.binary_sensors:
-            sensor_data = valid_sensors_by_id.get(binary_sensor.entity_id)
-            if(sensor_data):
-                binary_sensor.set_state(sensor_data['state'],sensor_data['attributes'].get('unit_of_measurement'))
+            if (DatetimeRegister.is_valid(entity_data)):
+                for sensor_aux in self.datetime_registers:
+                    if(sensor_aux.entity_id == entity_data['entity_id']):
+                        sensor_aux.set_state(entity_data['state'])
 
-    def update_general_devices(self, data):
-        general_devices_by_id = {device.entity_id: device for device in self.general_devices}
-        for device_data in data:
-            device_found = general_devices_by_id.get(device_data['entity_id'])
-            if(device_found):
-                device_found.set_state(device_data['state'])
-
-    def update_datetime_registers(self, data: list[dict]):
-        entity_by_id = {entity.entity_id: entity for entity in self.datetime_registers}
-        for device_data in data:
-            entity_found = entity_by_id.get(device_data['entity_id'])
-            if(entity_found):
-                entity_found.set_state(device_data['state'])
-
-    def update_person_state(self, data: list[dict]):
-        person_state_by_id = {person.entity_id: person for person in self.person_status}
-        for person_data in data:
-            person_found = person_state_by_id.get(person_data.get('entity_id',''))
-            if(person_found): 
-                last_not_home_change = self.get_last_not_home_change(person_data.get('entity_id'))
-                if(last_not_home_change):
-                    person_found.set_state(person_data['state'],person_data['last_changed'],person_data['last_updated'],last_not_home_change)
+            else:
+                for sensor_aux in self.general_devices:
+                    if(sensor_aux.entity_id == entity_data['entity_id']):
+                        sensor_aux.set_state(entity_data['state'])
 
     def get_last_not_home_change(self, entity_id: str | None):
         if (not entity_id):
@@ -157,7 +126,23 @@ class HomeAssistantServices:
             day_before = actual_date - timedelta(hours=24)
             day_before_format = day_before.strftime('%Y-%m-%dT%H:%M:%S.%f+00:00')
             return day_before_format
+        
+    def update_events_by_calendar(self):
+        for calendar in self.important_calendars:
+            calendar_id = calendar.calendar_id
+            calendar.set_events(self.requests_calendar_events(calendar_id))
 
+    def requests_calendar_events(self, calendar_id: str, future_days = 3) -> list[Event]:
+        now = datetime.now()
+        actual_time_string = now.strftime("%Y-%m-%d")
+        future_time = now + timedelta(days=future_days)
+        future_time_string = future_time.strftime("%Y-%m-%d")
+        events_filter = f"start={actual_time_string}&end={future_time_string}"
+        local_calendar_url = f"{self.url}/calendars/{calendar_id}?{events_filter}"
+        list_events_data = self.make_request(local_calendar_url)
+        list_events = [Calendar.create_event_from_json(calendar_id, event) for event in list_events_data]
+        return list_events
+    
     @classmethod
     def from_json(cls, json_config: dict):
         config: dict = json_config.get("homeAssistant",{})

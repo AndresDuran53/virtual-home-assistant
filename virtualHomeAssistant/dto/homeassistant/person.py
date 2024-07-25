@@ -19,14 +19,21 @@ class Person(Entity):
 
     def set_state(self, state: str, last_changed: str = '', last_updated: str = '', last_not_home_change: datetime | str = ''):
         self.state = state
-        if(last_changed): self.last_changed = datetime_from_str_person(last_changed)
-        if(last_updated): self.last_updated = datetime_from_str_person(last_updated)
+
+        if(last_changed): 
+            self.last_changed = datetime_from_str_person(last_changed)
+        else: self.last_changed = None
+
+        if(last_updated): 
+            self.last_updated = datetime_from_str_person(last_updated)
+        else: self.last_updated = None
 
         if(last_not_home_change):
             if(isinstance(last_not_home_change,datetime)):
                 self.last_not_home_change = last_not_home_change
             else:
                 self.last_not_home_change = datetime_from_str_person(last_not_home_change)
+        else: self.last_not_home_change = None
     
     def is_home(self) -> bool:
         if(self.state):
