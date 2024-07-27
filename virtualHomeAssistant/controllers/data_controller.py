@@ -1,8 +1,6 @@
 from datetime import datetime
 from services.homeassistant_services import HomeAssistantServices
 from dto.homeassistant.person import Person
-from dto.homeassistant.sensor import Sensor
-from dto.homeassistant.binary_sensor import BinarySensor
 from dto.homeassistant.calendar import Calendar
 from controllers.people_manager import PeopleManager
 
