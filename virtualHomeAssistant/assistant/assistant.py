@@ -21,6 +21,7 @@ class Assistant:
 
     def listen(self):
         text_revieced = self.listener.get_next_message()
+        if not text_revieced: return None
         text_to_send = self.decision_maker.evaluate_default_commands(text_revieced)
         if(text_to_send):
             self.voice.reproduce_sound("assistantRecognition")

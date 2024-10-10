@@ -80,7 +80,7 @@ class HomeAssistantServices:
         if(not calendar_owners):
             return self.important_calendars
         else:
-            shared_calendars = [calendar for calendar in self.important_calendars if calendar.calendar_owner in calendar_owners]
+            shared_calendars = [calendar for calendar in self.important_calendars if any(owner in calendar.calendar_owner for owner in calendar_owners)]
         return shared_calendars
     
     def update_sensors(self, data):

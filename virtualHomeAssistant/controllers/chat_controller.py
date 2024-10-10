@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class WelcomeChat():
-    intro = "please analyze the time of my systems and response with a personalized greeting, as Jarvis from Iron Man would:"
+    intro = "please analyze the time of my systems and response with a personalized greeting, as Jarvis from Iron Man would, please read the calendar and remind us of events if necessary:"
 
     @classmethod
     def format_welcome_text(cls, people_arriving_names: list[str], text_device_information: str):       
@@ -13,7 +13,7 @@ class WelcomeChat():
     @classmethod
     def people_intro(cls, people_arriving_names: list[str]):
         if len(people_arriving_names) == 1:
-            return f"[Automatic system notification] Hello Assistant, {people_arriving_names} just arrived home, "+cls.intro
+            return f"[Automatic system notification] Hello Assistant, {people_arriving_names[0]} just arrived home, "+cls.intro
         else:
             all_names = ', '.join(people_arriving_names[:-1]) + ' and ' + people_arriving_names[-1]
             return f"[Automatic system notification] Hello Assistant, {all_names} just arrived home, "+cls.intro
@@ -44,7 +44,7 @@ class WelcomeGuestChat():
 
     
 class GoodMorningChat():
-    meeting_description = "[Automatic system notification] We Andres and Tammy are waking up, please give them a personalized greeting and tell them the time and all the important information. Remember that you must always answer me in Spanish."
+    meeting_description = "[Automatic system notification] Instruction to assistant: Please generate a personalized greeting for Andrés and Tammy in Spanish, they are just waking up, analyzes the system time and greets accordingly. Include the current time, temperature, and any relevant events or tasks on the day. Keep the response friendly and natural by acting as our smart and clever butler, so don't hold back from making smart and sarcastic comments with the information provided below, but be quick and concise when doing them."
     @classmethod
     def format_good_morning_text(cls, text_device_information: str):
         final_text = f"{cls.meeting_description}\n{text_device_information}"
