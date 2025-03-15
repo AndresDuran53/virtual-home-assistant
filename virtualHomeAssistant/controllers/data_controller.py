@@ -77,6 +77,10 @@ class DataController:
         all_devices_status = important_devices + calendar_events
         information_text = self.text_from_list(all_devices_status)
         return information_text
+    
+    def get_maid_information(self) -> str:
+        maid_messages = self.text_from_list(self.homeAssistantServices.get_input_texts())
+        return maid_messages
 
     def text_from_list(self, status_list: list) -> str:
         now = datetime.now()

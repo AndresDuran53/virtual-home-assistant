@@ -60,3 +60,11 @@ class FeedCatsReminder():
         actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
         final_text = f"- {actual_time_string} \n -{cls.message_default}"
         return final_text
+
+class MaidAnnouncements():
+    intro = "[Automatic system notification] Heydi has arrived to help us with the cleaning. She is who helps with certain household tasks. You must reply with a greeting to her first, be very careful and respectful in the way you speak to her. Tell her the following information:"
+    
+    @classmethod
+    def format_maid_information(cls, maid_information) -> str:
+        final_test = f"{cls.intro} \n{maid_information}"
+        return final_test

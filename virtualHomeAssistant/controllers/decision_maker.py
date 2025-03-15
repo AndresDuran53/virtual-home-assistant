@@ -1,6 +1,6 @@
 from utils.custom_logging import CustomLogging
 from controllers.data_controller import DataController
-from controllers.chat_controller import WelcomeChat,WelcomeGuestChat,GoodMorningChat,FeedCatsReminder
+from controllers.chat_controller import WelcomeChat, WelcomeGuestChat, GoodMorningChat, FeedCatsReminder, MaidAnnouncements
 
 logger = CustomLogging("logs/assistant.log")
 
@@ -22,6 +22,8 @@ class DecisionMaker:
             return self.create_welcome_chat()
         elif text_received == "Feed Cats Reminder":
             return self.create_cats_reminder()
+        elif text_received == "Announcements to Maid":
+            return self.create_message_maid()
         else:
             return text_received
 
@@ -41,6 +43,13 @@ class DecisionMaker:
         else:
             logger.info(f"Welcoming guest, no owner arrived.")
             return self.handle_guest_arrived()
+        
+    def create_message_maid(self) -> str:
+        logger.info(f"Creating message to maid.")
+        maid_information = self.data_controller.get_maid_information()
+        logger.info(f"[Maid Information]: {maid_information}")
+        user_input = MaidAnnouncements.format_maid_information(maid_information)
+        return user_input
 
     def handle_owner_arriving_home(self) -> str:
         people_arriving_names = self.data_controller.get_people_names_arriving_home()
