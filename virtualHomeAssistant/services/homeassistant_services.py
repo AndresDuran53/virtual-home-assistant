@@ -1,6 +1,7 @@
 import requests
-import json
+from typing import Type, Sequence, Optional
 from datetime import datetime, timedelta, timezone
+from dto.homeassistant.entity import Entity
 from dto.homeassistant.device import Device
 from dto.homeassistant.calendar import Calendar
 from dto.homeassistant.event import Event
@@ -25,72 +26,51 @@ class HomeAssistantServices:
 
     def __init__(
         self,
-        url,
-        token,
-        people,
-        calendars,
-        list_sensors,
-        binary_sensors,
-        general_devices,
-        list_datetime_register,
-        list_input_texts,
+        url: str,
+        token: str,
+        people: list[dict],
+        calendars: list[dict],
+        sensors: list[dict],
+        binary_sensors: list[dict],
+        devices: list[dict],
+        datetime_registers: list[dict],
+        input_texts: list[dict],
     ):
         self.url = url
         self.token = token
-        self._filling_list_devices(
-            people,
-            calendars,
-            list_sensors,
-            binary_sensors,
-            general_devices,
-            list_datetime_register,
-            list_input_texts,
-        )
+        self.person_status = Person.list_from_dict(people)
+        self.sensors = Sensor.list_from_dict(sensors)
+        self.binary_sensors = BinarySensor.list_from_dict(binary_sensors)
+        self.general_devices = Device.list_from_dict(devices)
+        self.datetime_registers = DatetimeRegister.list_from_dict(datetime_registers)
+        self.important_calendars = Calendar.list_from_dict(calendars)
+        self.input_texts = InputText.list_from_dict(input_texts)
         self.update_data()
 
-    def _filling_list_devices(
-        self,
-        people: list[dict],
-        list_calendar: list[dict],
-        list_sensors: list[dict],
-        list_binary_sensors: list[dict],
-        list_general_devices: list[dict],
-        list_datetime_register: list[dict],
-        list_input_texts: list[dict],
-    ):
-        self.person_status = Person.list_from_dict(people)
-        self.sensors = Sensor.list_from_dict(list_sensors)
-        self.binary_sensors = BinarySensor.list_from_dict(list_binary_sensors)
-        self.general_devices = Device.list_from_dict(list_general_devices)
-        self.datetime_registers = DatetimeRegister.list_from_dict(
-            list_datetime_register
-        )
-        self.important_calendars = Calendar.list_from_dict(list_calendar)
-        self.input_texts = InputText.list_from_dict(list_input_texts)
-
-    def make_request(self, url: str, params=None):
+    def _make_request(self, endpoint: str, params=None):
         headers = {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
         }
-        response = requests.get(url, params=params, headers=headers)
-        return response.json()
+        try:
+            response = requests.get(f"{self.url}{endpoint}", params=params, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            print(f"Error on the request: {e}")
+            return None
 
     def requests_general_data(self):
-        url = self.url + "/states"
-        data = self.make_request(url)
-        return data
+        return self._make_request("/states")
 
     def get_history(self, entity_id: str):
-        url = self.url + "/history/period"
-        params = {"filter_entity_id": entity_id}
-        history = self.make_request(url, params)
-        return history
+        return self._make_request("/history/period", {"filter_entity_id": entity_id})
 
     def update_data(self):
-        self.last_data = self.requests_general_data()
-        self.update_sensors(self.last_data)
-        self.update_events_by_calendar()
+        data = self.requests_general_data()
+        if data:
+            self.update_sensors(data)
+            self.update_events_by_calendar()
 
     def get_people_information(self) -> list[Person]:
         return self.person_status
@@ -117,54 +97,39 @@ class HomeAssistantServices:
                 if any(owner in calendar.calendar_owner for owner in calendar_owners)
             ]
         return shared_calendars
-
+    
     def update_sensors(self, data):
+        entity_types: dict[Type[Entity], Sequence[Entity]] = {
+            Person: self.person_status,
+            Sensor: self.sensors,
+            BinarySensor: self.binary_sensors,
+            DatetimeRegister: self.datetime_registers,
+            InputText: self.input_texts,
+        }
+
         for entity_data in data:
+            entity_id = entity_data.get("entity_id")
+            state = entity_data.get("state")
+            attributes = entity_data.get("attributes", {})
+            unit = attributes.get("unit_of_measurement", "")
+            last_changed = entity_data.get("last_changed")
+            last_updated = entity_data.get("last_updated")
 
-            if Sensor.is_valid(entity_data):
-                for sensor_aux in self.sensors:
-                    if sensor_aux.entity_id == entity_data["entity_id"]:
-                        sensor_aux.set_state(
-                            entity_data["state"],
-                            entity_data["attributes"].get("unit_of_measurement"),
-                        )
-
-            elif BinarySensor.is_valid(entity_data):
-                for sensor_aux in self.binary_sensors:
-                    if sensor_aux.entity_id == entity_data["entity_id"]:
-                        sensor_aux.set_state(
-                            entity_data["state"],
-                            entity_data["attributes"].get("unit_of_measurement"),
-                        )
-
-            elif Person.is_valid(entity_data):
-                for sensor_aux in self.person_status:
-                    if sensor_aux.entity_id == entity_data["entity_id"]:
-                        last_not_home_change = self.get_last_not_home_change(
-                            entity_data.get("entity_id")
-                        )
-                        if last_not_home_change:
-                            sensor_aux.set_state(
-                                entity_data["state"],
-                                entity_data["last_changed"],
-                                entity_data["last_updated"],
-                                last_not_home_change,
-                            )
-
-            if DatetimeRegister.is_valid(entity_data):
-                for sensor_aux in self.datetime_registers:
-                    if sensor_aux.entity_id == entity_data["entity_id"]:
-                        sensor_aux.set_state(entity_data["state"])
-
-            if InputText.is_valid(entity_data):
-                for sensor_aux in self.input_texts:
-                    if sensor_aux.entity_id == entity_data["entity_id"]:
-                        sensor_aux.set_state(entity_data["state"])
-
+            for entity_class, sensors in entity_types.items():
+                if entity_class.is_valid(entity_data):
+                    for sensor in sensors:
+                        if sensor.entity_id == entity_id:
+                            if isinstance(sensor, Person):
+                                last_not_home_change = self.get_last_not_home_change(entity_id)
+                                if last_not_home_change:
+                                    sensor.set_state(state, last_changed, last_updated, last_not_home_change)
+                            else:
+                                sensor.set_state(state=state, unit=unit)
+                    break
             else:
-                for sensor_aux in self.general_devices:
-                    if sensor_aux.entity_id == entity_data["entity_id"]:
-                        sensor_aux.set_state(entity_data["state"])
+                for sensor in self.general_devices:
+                    if sensor.entity_id == entity_id:
+                        sensor.set_state(state=state, unit=unit)
 
     def get_last_not_home_change(self, entity_id: str | None):
         if not entity_id:
@@ -191,8 +156,8 @@ class HomeAssistantServices:
         future_time = now + timedelta(days=future_days)
         future_time_string = future_time.strftime("%Y-%m-%d")
         events_filter = f"start={actual_time_string}&end={future_time_string}"
-        local_calendar_url = f"{self.url}/calendars/{calendar_id}?{events_filter}"
-        list_events_data = self.make_request(local_calendar_url)
+        local_calendar_endpoint = f"/calendars/{calendar_id}?{events_filter}"
+        list_events_data = self._make_request(local_calendar_endpoint)
         list_events = [
             Calendar.create_event_from_json(calendar_id, event)
             for event in list_events_data
