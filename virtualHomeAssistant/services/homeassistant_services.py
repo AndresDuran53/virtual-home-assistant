@@ -1,5 +1,5 @@
 import requests
-from typing import Type, Sequence, Optional
+from typing import Type, Sequence, Optional, Dict
 from datetime import datetime, timedelta, timezone
 from dto.homeassistant.entity import Entity
 from dto.homeassistant.device import Device
@@ -35,7 +35,7 @@ class HomeAssistantServices:
         devices: list[dict],
         datetime_registers: list[dict],
         input_texts: list[dict],
-    ):
+    ) -> None:
         self.url = url
         self.token = token
         self.person_status = Person.list_from_dict(people)
@@ -47,7 +47,7 @@ class HomeAssistantServices:
         self.input_texts = InputText.list_from_dict(input_texts)
         self.update_data()
 
-    def _make_request(self, endpoint: str, params=None):
+    def _make_request(self, endpoint: str, params: Optional[dict] = None) -> Optional[list]:
         headers = {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
@@ -60,13 +60,18 @@ class HomeAssistantServices:
             print(f"Error on the request: {e}")
             return None
 
-    def requests_general_data(self):
-        return self._make_request("/states")
+    def requests_general_data(self) -> list:
+        result = self._make_request("/states")
+        if(result): return result
+        else: return []
 
-    def get_history(self, entity_id: str):
-        return self._make_request("/history/period", {"filter_entity_id": entity_id})
+    def get_history(self, entity_id: str) -> list:
+        result = self._make_request("/history/period", {"filter_entity_id": entity_id})
+        if(result): return result
+        else: return []
+        
 
-    def update_data(self):
+    def update_data(self) -> None:
         data = self.requests_general_data()
         if data:
             self.update_sensors(data)
@@ -90,16 +95,14 @@ class HomeAssistantServices:
     def get_calendars_events(self, calendar_owners: list[str] = []) -> list[Calendar]:
         if not calendar_owners:
             return self.important_calendars
-        else:
-            shared_calendars = [
-                calendar
-                for calendar in self.important_calendars
-                if any(owner in calendar.calendar_owner for owner in calendar_owners)
-            ]
-        return shared_calendars
-    
-    def update_sensors(self, data):
-        entity_types: dict[Type[Entity], Sequence[Entity]] = {
+        return [
+            calendar
+            for calendar in self.important_calendars
+            if any(owner in calendar.calendar_owner for owner in calendar_owners)
+        ]
+
+    def update_sensors(self, data: list) -> None:
+        entity_types: Dict[Type[Entity], Sequence[Entity]] = {
             Person: self.person_status,
             Sensor: self.sensors,
             BinarySensor: self.binary_sensors,
@@ -108,12 +111,12 @@ class HomeAssistantServices:
         }
 
         for entity_data in data:
-            entity_id = entity_data.get("entity_id")
-            state = entity_data.get("state")
+            entity_id = entity_data.get("entity_id", "")
+            state = entity_data.get("state", "")
             attributes = entity_data.get("attributes", {})
             unit = attributes.get("unit_of_measurement", "")
-            last_changed = entity_data.get("last_changed")
-            last_updated = entity_data.get("last_updated")
+            last_changed = entity_data.get("last_changed", "")
+            last_updated = entity_data.get("last_updated", "")
 
             for entity_class, sensors in entity_types.items():
                 if entity_class.is_valid(entity_data):
@@ -131,26 +134,24 @@ class HomeAssistantServices:
                     if sensor.entity_id == entity_id:
                         sensor.set_state(state=state, unit=unit)
 
-    def get_last_not_home_change(self, entity_id: str | None):
+    def get_last_not_home_change(self, entity_id: Optional[str]) -> Optional[datetime | str]:
         if not entity_id:
             return None
         history = self.get_history(entity_id)
         person_statuses = PersonLocationStatus.create_person_statuses(history)
-        personLocationStatusAway = PersonLocationStatus.find_statuses(person_statuses)
-        if personLocationStatusAway and personLocationStatusAway.last_changed:
-            return personLocationStatusAway.last_changed
-        else:
-            actual_date = datetime.now(timezone.utc)
-            day_before = actual_date - timedelta(hours=24)
-            day_before_format = day_before.strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
-            return day_before_format
+        person_location_status_away = PersonLocationStatus.find_statuses(person_statuses)
+        if person_location_status_away and person_location_status_away.last_changed:
+            return person_location_status_away.last_changed
 
-    def update_events_by_calendar(self):
+        actual_date = datetime.now(timezone.utc)
+        day_before = actual_date - timedelta(hours=24)
+        return day_before.strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
+
+    def update_events_by_calendar(self) -> None:
         for calendar in self.important_calendars:
-            calendar_id = calendar.calendar_id
-            calendar.set_events(self.requests_calendar_events(calendar_id))
+            calendar.set_events(self.requests_calendar_events(calendar.calendar_id))
 
-    def requests_calendar_events(self, calendar_id: str, future_days=3) -> list[Event]:
+    def requests_calendar_events(self, calendar_id: str, future_days: int = 3) -> list[Event]:
         now = datetime.now()
         actual_time_string = now.strftime("%Y-%m-%d")
         future_time = now + timedelta(days=future_days)
@@ -158,32 +159,22 @@ class HomeAssistantServices:
         events_filter = f"start={actual_time_string}&end={future_time_string}"
         local_calendar_endpoint = f"/calendars/{calendar_id}?{events_filter}"
         list_events_data = self._make_request(local_calendar_endpoint)
-        list_events = [
+        return [
             Calendar.create_event_from_json(calendar_id, event)
-            for event in list_events_data
+            for event in (list_events_data or [])
         ]
-        return list_events
 
     @classmethod
-    def from_json(cls, json_config: dict):
+    def from_json(cls, json_config: dict) -> "HomeAssistantServices":
         config: dict = json_config.get("homeAssistant", {})
-        url = config.get("url")
-        ha_token = config.get("haToken")
-        people = config.get("people")
-        calendars = config.get("calendars")
-        binary_sensors = config.get("binarySensors")
-        general_devices = config.get("generalDevices")
-        list_sensors = config.get("sensors")
-        list_datetime_register = config.get("datetimeRegister")
-        list_input_texts = config.get("input_text")
         return HomeAssistantServices(
-            url,
-            ha_token,
-            people,
-            calendars,
-            list_sensors,
-            binary_sensors,
-            general_devices,
-            list_datetime_register,
-            list_input_texts,
+            url=config.get("url", ""),
+            token=config.get("haToken", ""),
+            people=config.get("people", []),
+            calendars=config.get("calendars", []),
+            sensors=config.get("sensors", []),
+            binary_sensors=config.get("binarySensors", []),
+            devices=config.get("generalDevices", []),
+            datetime_registers=config.get("datetimeRegister", []),
+            input_texts=config.get("input_text", []),
         )
