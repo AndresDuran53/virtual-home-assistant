@@ -1,9 +1,9 @@
 from utils.custom_logging import CustomLogging
 from utils.configuration_reader import ConfigurationReader
 from assistant.assistant import Assistant
-from assistant.implementation.listener_mqtt import ListenerMqtt
-from assistant.implementation.voice_mqtt import VoiceMqtt
-from assistant.implementation.gpt_conversation_processor import GPTConversationProcessor
+from assistant.implementations.listener_mqtt import ListenerMqtt
+from assistant.implementations.voice_mqtt import VoiceMqtt
+from assistant.implementations.gpt_conversation_processor import GPTConversationProcessor
 from whisper_transcribe.speech_handler import SpeechHandler
 from controllers.decision_maker import DecisionMaker
 

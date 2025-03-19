@@ -5,7 +5,7 @@ here = os.path.dirname(__file__)
 sys.path.append(os.path.join(here, '..'))
 
 from utils.configuration_reader import ConfigurationReader
-from assistant.implementation.gpt_conversation_processor import GPTConversationProcessor
+from assistant.implementations.gpt_conversation_processor import GPTConversationProcessor
 
 def main():
     print("Starting test")
