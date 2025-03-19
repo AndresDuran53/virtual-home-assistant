@@ -5,7 +5,7 @@ from assistant.implementations.listener_mqtt import ListenerMqtt
 from assistant.implementations.voice_mqtt import VoiceMqtt
 from assistant.implementations.gpt_conversation_processor import GPTConversationProcessor
 from whisper_transcribe.speech_handler import SpeechHandler
-from controllers.decision_maker import DecisionMaker
+from controllers.decision_engine import DecisionMaker
 
 
 logger = CustomLogging("logs/assistant.log")

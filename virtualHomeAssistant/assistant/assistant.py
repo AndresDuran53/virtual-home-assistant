@@ -3,7 +3,7 @@ from utils.custom_logging import CustomLogging
 from assistant.listener import Listener
 from assistant.voice import Voice
 from assistant.conversation_processor import ConversationProcessor
-from controllers.decision_maker import DecisionMaker
+from controllers.decision_engine import DecisionMaker
 
 class Assistant:
     def __init__(self, listener: Listener, 

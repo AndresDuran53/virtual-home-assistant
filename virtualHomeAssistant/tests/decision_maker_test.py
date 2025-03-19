@@ -7,7 +7,7 @@ parent = os.path.dirname(current)
 sys.path.append(parent)
 
 from utils.configuration_reader import ConfigurationReader
-from controllers.decision_maker import DecisionMaker
+from controllers.decision_engine import DecisionMaker
 
 def main():
     data_config = ConfigurationReader.read_config_file()
