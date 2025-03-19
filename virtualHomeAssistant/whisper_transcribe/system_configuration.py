@@ -2,6 +2,9 @@ import argparse
 import speech_recognition as sr
 
 from sys import platform
+from utils.custom_logging import CustomLogging
+
+logger = CustomLogging("logs/assistant.log")
 
 class ParserValues:
     model: str
@@ -61,9 +64,9 @@ class AudioDeviceConfiguration:
             return None
         #If is requesting fot the list, print it and exit the program
         if not mic_name or mic_name == 'list':
-            print("Available microphone devices are: ")
+            logger.info("Available microphone devices are: ")
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
-                print(f"Microphone with name \"{name}\" found")   
+                logger.info(f"Microphone with name \"{name}\" found")   
             exit()
         #If non of the above, then return the microphone found or None
         device_index = None

@@ -13,7 +13,10 @@ from time import sleep
 
 from whisper_transcribe.system_configuration import ParserValues, AudioDeviceConfiguration
 from whisper_transcribe.audio_util import AudioUtil
+from utils.custom_logging import CustomLogging
 from assistant.listener import Listener
+
+logger = CustomLogging("logs/assistant.log")
 
 class SpeechHandler(Listener):
     last_mention = []
@@ -33,7 +36,7 @@ class SpeechHandler(Listener):
         self.device_index = AudioDeviceConfiguration.get_microphone_device_index(self.args.default_microphone)
         self.temp_file = NamedTemporaryFile().name
         self.audio_model = self.load_mode(self.args)
-        print("Model loaded.\n")
+        logger.info("Model loaded.\n")
         self.source = None
         self.execute()
 
@@ -100,7 +103,7 @@ class SpeechHandler(Listener):
                         is_speaking = False
 
             except KeyboardInterrupt:
-                print("SpeechHandler Error")
+                logger.error("SpeechHandler Error")
             # Infinite loops are bad for processors, must sleep.
             sleep(0.25)
         
@@ -134,7 +137,7 @@ class SpeechHandler(Listener):
         assistant_called = self.assistant_was_called(lastRecord)
         if(assistant_called):
             self.last_mention.append(lastRecord)
-            print(f"[Assistant was Called] {lastRecord}")
+            logger.info(f"[Assistant was Called] {lastRecord}")
     
     def assistant_was_called(self, string):
         assistantName_keywords = ["Minerva", "mi nerva", "mi nerba", "my nerva", "my nerba", "minerba", "manerva", "minvera", "monerva", "minerma", "minrrva", "miverma", "minerrva", "menerva", "Menirva", "Minarva", "Me nerva", "Mi nervo", "Minerba", "Mivera", "Menerba", "Mi verba"]

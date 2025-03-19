@@ -1,6 +1,7 @@
 import requests
 from typing import Type, Sequence, Optional, Dict
 from datetime import datetime, timedelta, timezone
+from utils.custom_logging import CustomLogging
 from dto.homeassistant.entity import Entity
 from dto.homeassistant.device import Device
 from dto.homeassistant.calendar import Calendar
@@ -12,6 +13,7 @@ from dto.homeassistant.input_text import InputText
 from dto.homeassistant.person_location_status import PersonLocationStatus
 from dto.homeassistant.datetime_register import DatetimeRegister
 
+logger = CustomLogging("logs/assistant.log")
 
 class HomeAssistantServices:
     url: str
@@ -57,7 +59,7 @@ class HomeAssistantServices:
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            print(f"Error on the request: {e}")
+            logger.error(f"Error on the request: {e}")
             return None
 
     def requests_general_data(self) -> list:
