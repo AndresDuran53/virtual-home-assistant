@@ -14,6 +14,9 @@ class CustomLogging:
     def __init__(self, file_name):
         self.file_name = file_name
 
+    def __repr__(self):
+        return f"<CustomLogging file_name={self.file_name}>"
+
     def debug(self, message):
         self.log('DEBUG', message)
 
@@ -26,7 +29,10 @@ class CustomLogging:
     def error(self, message):
         self.log('ERROR', message)
 
-    def log(self, level, message):
+    def log(self, level: str, message: str):
+        """
+        Logs a message with a specific level.
+        """
         timestamp = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         final_message = f'[{timestamp}] {level} - {message}\n'
         if(self.print_debug): print(final_message)

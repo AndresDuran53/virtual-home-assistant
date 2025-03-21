@@ -1,13 +1,14 @@
 from utils.custom_logging import CustomLogging
 import paho.mqtt.client as mqtt
+from typing import Optional, List, Dict
 
 class MqttConfig:
     broker_address = None
     mqtt_user = None
     mqtt_pass = None
-    subscription_topics = []
+    subscription_topics: List[Dict] = []
 
-    def __init__(self, broker_address=None, mqtt_user=None, mqtt_pass=None, subscription_topics=None):
+    def __init__(self, broker_address = None, mqtt_user = None, mqtt_pass = None, subscription_topics: List[Dict] = []):
         self.broker_address = broker_address
         self.mqtt_user = mqtt_user
         self.mqtt_pass = mqtt_pass
@@ -31,8 +32,8 @@ class MqttService:
         if not cls.__instance:
             cls.__instance = super().__new__(cls)
         return cls.__instance
-    
-    def __init__(self, mqtt_config:MqttConfig = None, on_message = None, client_id = "AssistantService"):
+
+    def __init__(self, mqtt_config: Optional[MqttConfig] = None, on_message = None, client_id = "AssistantService"):
         if not hasattr(self, 'client'):
             if mqtt_config is None or on_message is None or client_id is None:
                 raise ValueError('MQTT configuration not found at object creation')
@@ -51,6 +52,9 @@ class MqttService:
         self.client.loop_start()
 
     def subscribe_know_topics(self):
+        """
+        Subscribes to all known MQTT topics.
+        """
         for know_command in self.know_commands:
             topic = know_command["topic"]
             self.client.subscribe(topic)
@@ -60,7 +64,7 @@ class MqttService:
         self.logger.info(f"[Sending] | [Topic]:{topic} | [Message]:{message}")
         self.client.publish(topic,message,qos=1,retain=False)
 
-    def get_command_from_topic(self, topic) -> str:
+    def get_command_from_topic(self, topic) -> Optional[str]:
         for know_command in self.know_commands:
             if know_command["topic"] == topic:
                 return know_command["commandName"]

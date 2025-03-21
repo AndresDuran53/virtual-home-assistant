@@ -48,9 +48,10 @@ class DataController:
         return people_at_home
     
     def get_people_names_at_home(self) -> list[str]:
-        people_at_home = self.get_people_at_home()
-        people_names_at_home = [person.name for person in people_at_home]
-        return people_names_at_home
+        """
+        Returns a list of names of people currently at home.
+        """
+        return [person.name for person in self.get_people_at_home()]
     
     def get_people_arriving_home(self) -> list[Person]:
         people_arriving_home = self.people_manager.get_people_just_get_home()
@@ -91,4 +92,3 @@ class DataController:
                 text+=f"\n"
                 text += f"- {element.to_text()}"
         return text
-    

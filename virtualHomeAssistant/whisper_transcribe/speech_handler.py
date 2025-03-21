@@ -6,7 +6,7 @@ import whisper
 import torch
 import threading
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from queue import Queue
 from tempfile import NamedTemporaryFile
 from time import sleep
@@ -48,6 +48,9 @@ class SpeechHandler(Listener):
         return whisper.load_model(model)
 
     def generate_audio_source(self):
+        """
+        Initializes the audio source and adjusts for ambient noise.
+        """
         self.source = sr.Microphone(sample_rate=16000,device_index=self.device_index)
         with self.source:
             self.recorder.adjust_for_ambient_noise(self.source)
@@ -71,21 +74,24 @@ class SpeechHandler(Listener):
         self.show_transcription()
 
     def _update_audio_listened(self):
-        if(not self.source):
+        """
+        Continuously listens for audio and processes it.
+        """
+        if self.source is None:
             self.generate_audio_source()
         is_speaking = False
         while True:
             try:
                 # Pull raw recorded audio from the queue.
-                if not self.data_queue.empty():
+                if not self.data_queue.empty() and self.source is not None:
                     # If enough time has passed between recordings, consider the phrase complete.
                     # Clear the current working audio buffer to start over with the new data.
                     has_silence_timeout = self.silence_time_is_up()
-                    if(has_silence_timeout): self.last_sample = bytes()
+                    if has_silence_timeout: self.last_sample = bytes()
 
                     # This is the last time we received new audio data from the queue.
                     is_speaking = True
-                    self.phrase_time = datetime.utcnow()
+                    self.phrase_time = datetime.now(timezone.utc)
 
                     # Concatenate our current audio data with the latest audio data.
                     self.last_sample = AudioUtil.concat_data_to_current_audio(self.last_sample,self.data_queue)
@@ -98,12 +104,15 @@ class SpeechHandler(Listener):
                     AudioUtil.write_temp_audio_file(self.temp_file,wav_data)
 
                 else:
-                    if(is_speaking and self.silence_time_is_up()):
+                    if is_speaking and self.silence_time_is_up():
                         self.read_complete_audio()
                         is_speaking = False
 
             except KeyboardInterrupt:
-                logger.error("SpeechHandler Error")
+                logger.error("SpeechHandler interrupted by user.")
+                break
+            except Exception as e:
+                logger.error(f"Unexpected error in SpeechHandler: {e}")
             # Infinite loops are bad for processors, must sleep.
             sleep(0.25)
         
@@ -112,10 +121,13 @@ class SpeechHandler(Listener):
         speech_thread = threading.Thread(target=self._update_audio_listened)
         speech_thread.start()
 
-    def silence_time_is_up(self):
+    def silence_time_is_up(self) -> bool:
+        """
+        Checks if the silence timeout has been exceeded.
+        """
         silence_timeout = self.silence_timeout
         phrase_time = self.phrase_time
-        if(phrase_time is None): return False
+        if phrase_time is None: return False
         now = datetime.utcnow()
         elapsed_time_delta = now - phrase_time
         has_silence_timeout = phrase_time and elapsed_time_delta > timedelta(seconds=silence_timeout)
@@ -123,7 +135,7 @@ class SpeechHandler(Listener):
 
     def result_transcription_handler(self,result,has_silence_timeout):
         text = result['text'].strip()
-        if(text is None or text == ""): return self.transcription
+        if text is None or text == "": return self.transcription
         # If we detected a pause between recordings, add a new item to our transcripion.
         # Otherwise edit the existing one.
         if has_silence_timeout:
@@ -135,7 +147,7 @@ class SpeechHandler(Listener):
     def show_transcription(self):
         lastRecord = self.transcription[-1]
         assistant_called = self.assistant_was_called(lastRecord)
-        if(assistant_called):
+        if assistant_called:
             self.last_mention.append(lastRecord)
             logger.info(f"[Assistant was Called] {lastRecord}")
     
@@ -144,11 +156,11 @@ class SpeechHandler(Listener):
         normalized_string = string.lower().replace(".", "").replace(",", "").replace("?", "").replace("!", "")        
         for keyword in assistantName_keywords:
             was_called = keyword.lower() in normalized_string
-            if(was_called): return True
+            if was_called: return True
         return False
     
-    def get_next_message(self) -> str:
-        if(len(self.last_mention)>0):
+    def get_next_message(self) -> str | None:
+        if len(self.last_mention) > 0:
             texto_a_enviar = self.last_mention.pop(-1)
             return texto_a_enviar
         return None

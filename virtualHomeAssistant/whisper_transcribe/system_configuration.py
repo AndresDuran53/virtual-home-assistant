@@ -1,7 +1,6 @@
 import argparse
 import speech_recognition as sr
-
-from sys import platform
+from sys import platform, exit
 from utils.custom_logging import CustomLogging
 
 logger = CustomLogging("logs/assistant.log")
@@ -23,7 +22,10 @@ class ParserValues:
         self.default_microphone = default_microphone
 
     @classmethod 
-    def parser_validation(cls,parser):
+    def parser_validation(cls, parser: argparse.ArgumentParser) -> argparse.Namespace:
+        """
+        Validates and parses command-line arguments.
+        """
         parser.add_argument("--model", default="medium", help="Model to use",
                             choices=["tiny", "base", "small", "medium", "large"])
         parser.add_argument("--non_english", action='store_true',
@@ -39,11 +41,13 @@ class ParserValues:
             parser.add_argument("--default_microphone", default='pulse',
                                 help="Default microphone name for SpeechRecognition. "
                                     "Run this with 'list' to view available Microphones.", type=str)
-        args = parser.parse_args()
-        return args
+        return parser.parse_args()
 
     @classmethod
-    def fromSystemArguments(cls):
+    def fromSystemArguments(cls) -> "ParserValues":
+        """
+        Creates a ParserValues instance from system arguments.
+        """
         parser = argparse.ArgumentParser()
         args = cls.parser_validation(parser)
         return cls(
@@ -58,7 +62,10 @@ class ParserValues:
 class AudioDeviceConfiguration:
 
     @staticmethod
-    def get_microphone_device_index(mic_name):
+    def get_microphone_device_index(mic_name: str) -> int | None:
+        """
+        Returns the index of the microphone device by name.
+        """
         #If is not a linux system, then return None
         if not 'linux' in platform:
             return None
