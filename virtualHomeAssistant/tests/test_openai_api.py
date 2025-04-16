@@ -13,6 +13,10 @@ def main():
     gpt_conversation_processor = GPTConversationProcessor(data_config)
     result = gpt_conversation_processor.send_message("Sabes mi nombre?",True)
     print(result)
+    result = gpt_conversation_processor.send_message("Sabes el nombre de mi novia?",False)
+    print(result)
+    result = gpt_conversation_processor.send_message("Cual fue mi primera pregunta?",False)
+    print(result)
 
 if __name__ == "__main__":
     main()

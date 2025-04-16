@@ -44,7 +44,7 @@ class WelcomeGuestChat():
 
     
 class GoodMorningChat():
-    meeting_description = "[Automatic system notification] Instruction to assistant: Please generate a personalized greeting for Andrés and Tammy in Spanish, they are just waking up, analyzes the system time and greets accordingly. Include the current time, temperature, and any relevant events or tasks on the day. Keep the response friendly and natural by acting as our smart and clever butler, so don't hold back from making smart and sarcastic comments with the information provided below, but be quick and concise when doing them."
+    meeting_description = "[Automatic system notification] Instruction to assistant: Please generate a personalized greeting for Andrés and Tammy in Spanish, they are just waking up, analyzes the system time and greets accordingly. Include the current time, temperature, and any relevant events or tasks on the day. Keep the response friendly and natural by acting as our smart and clever butler, don't hold back from making smart and clever comments with the information provided below, but be quick and concise when doing them."
     @classmethod
     def format_good_morning_text(cls, text_device_information: str):
         final_text = f"{cls.meeting_description}\n{text_device_information}"

@@ -17,7 +17,7 @@ class GPTConversationProcessor(ConversationProcessor):
     def can_send_new_message(self, message: str) -> bool:
         max_per_day = self.token_manager.get_value_for_date()
         logger.info(f"[Tokens used today]: {max_per_day}")
-        return self.chat_service.can_do_question(message,max_per_day)
+        return self.chat_service.can_process_requests(message,max_per_day)
 
     def send_message(self, message: str, independent_message = True) -> str | None:
         if(message == None and message == ""): return

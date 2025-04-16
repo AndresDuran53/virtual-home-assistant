@@ -23,7 +23,7 @@ class OpenAIGPT3:
         except:
             self.logger.error(f"Tiktoken was not able to found the model: {self.model}")
             self.encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-        self.initial_conversation = initial_conversation
+        self.initial_conversation: list = initial_conversation
         self.conversation_log = ConversationLog()
     
     def _count_initial_conversation(self) -> int:
@@ -73,25 +73,36 @@ class OpenAIGPT3:
             total_tokens = self.max_tokens_per_requests_recieved
         return message,total_tokens
     
-    def can_do_question(self, user_input, max_per_day) -> bool:
+    def can_process_requests(self, user_input, max_per_day) -> bool:
         input_count = self._count_token_amount(user_input)
         input_count += self._count_initial_conversation()
-        if(input_count>self.max_tokens_per_requests_sended): return False
-        if(input_count+max_per_day>self.max_tokens_per_day): return False
+        if (input_count > self.max_tokens_per_requests_sended): 
+            return False
+        if ((input_count + max_per_day) > self.max_tokens_per_day):
+            return False
         return True
     
-    def send_message(self, user_input, independent_message = True) -> tuple[str, int]:
-        conversation = self.initial_conversation[:]
-        self.conversation_log.new_message("user", user_input)
-        saved_chat = self.conversation_log.get_entries_as_dicts()
-        if(independent_message):
-            conversation.append(saved_chat[-1])
-        else:
-            conversation += saved_chat
-        self.logger.debug(f"Conversation Created: {conversation}")
+    def send_message(self, user_input: str, is_independent: bool = True) -> tuple[str, int]:
+        conversation = self._prepare_conversation(user_input, is_independent)
+        self.logger.debug(f"Conversation to send: {conversation}")
         text_response,total_tokens = self._request_response(conversation)
-        self.conversation_log.new_message("assistant", text_response)
+        if not is_independent:
+            self.conversation_log.new_message("assistant", text_response)
         return text_response,total_tokens
+    
+    def _prepare_conversation(self, user_input, is_independent):
+        if is_independent:
+            conversation = self.initial_conversation.copy()
+            conversation.append({"role": "user", "content": user_input})
+        else:
+            conversation = self.conversation_log.get_entries_as_dicts()
+            if not conversation:
+                self.logger.info("No chat history found. Starting a new conversation.")
+                for message in self.initial_conversation:
+                    self.conversation_log.new_message(message["role"], message["content"])
+            self.conversation_log.new_message("user", user_input)
+            conversation = self.conversation_log.get_entries_as_dicts()
+        return conversation
 
     @classmethod
     def from_json(cls, json_config):
