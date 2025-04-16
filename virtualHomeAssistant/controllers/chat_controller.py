@@ -63,23 +63,26 @@ class GoodMorningChat(BaseChat):
         return cls.format_message(cls.MEETING_DESCRIPTION, internal_information, text_device_information)
 
 class WelcomeChat(BaseChat):
-    INTRO = "Please analyze the time of my systems and respond with a personalized greeting, as Jarvis from Iron Man would. Please read the calendar and remind us of events if necessary."
+    MEETING_DESCRIPTION = (
+        "Please analyze the time of my systems and respond with a personalized greeting, as Jarvis from Iron Man would. "
+        "Please read the calendar and remind us of events if necessary. Include the names of the people arriving and any relevant device information."
+    )
 
     @classmethod
     def format_welcome_text(cls, people_arriving_names: list[str], text_device_information: str) -> str:
-        people_meeting_text = cls.get_arriving_format(people_arriving_names)
-        intro_with_names = cls.people_intro(people_arriving_names)
-        return f"{intro_with_names}{people_meeting_text}\n{text_device_information}"
+        """
+        Formats a welcome message for people arriving.
 
-    @classmethod
-    def people_intro(cls, people_arriving_names: list[str]) -> str:
-        names = cls.format_names(people_arriving_names)
-        return f"[Automatic system notification] Hello Assistant, {names} just arrived home. {cls.INTRO}"
+        Args:
+            people_arriving_names (list[str]): Names of people arriving.
+            text_device_information (str): Information about the device.
 
-    @staticmethod
-    def get_arriving_format(people_arriving_names: list[str]) -> str:
-        return "\nPeople you should greet:\n" + "\n".join(f"- {name}" for name in people_arriving_names)
-
+        Returns:
+            str: The formatted welcome message.
+        """
+        people_names = cls.format_names(people_arriving_names)
+        internal_information = f"People arriving: {people_names}"
+        return cls.format_message(cls.MEETING_DESCRIPTION, internal_information, text_device_information)
 
 class WelcomeGuestChat(BaseChat):
     INTRO = "[Automatic system notification] A guest has entered the house. Let them know that you have already notified me and that everything is being recorded."
