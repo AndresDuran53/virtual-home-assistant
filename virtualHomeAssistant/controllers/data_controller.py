@@ -38,8 +38,8 @@ class DataController:
     
     def get_important_devices(self) -> list:
         final_list = []
-        final_list += [sensor for sensor in self.sensors_information if not (sensor.needs_to_be_ignore())]
-        final_list += [general_device for general_device in self.general_devices_information if not (general_device.needs_to_be_ignore())]
+        final_list += [sensor for sensor in self.sensors_information if not (sensor.needs_to_be_ignore()) and sensor.get_visibility()=='important']
+        final_list += [general_device for general_device in self.general_devices_information if not (general_device.needs_to_be_ignore()) and general_device.get_visibility()=='important']
         final_list += [datetime_register for datetime_register in self.datetime_registers_information if not (datetime_register.needs_to_be_ignore())]
         return final_list
     
@@ -66,6 +66,18 @@ class DataController:
         people_names_arriving_home = self.get_people_names_arriving_home()
         result = len(people_names_arriving_home) > 0
         return result
+    
+    def get_internal_information(self) -> str:
+        now = datetime.now()
+        actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
+        text = f"\n- {actual_time_string}"
+
+        internal_information = [sensor for sensor in self.sensors_information if not (sensor.needs_to_be_ignore()) and sensor.get_visibility()=='internal']
+        internal_information += [general_device for general_device in self.general_devices_information if not (general_device.needs_to_be_ignore()) and general_device.get_visibility()=='internal']
+
+        information_text = self.text_from_list(internal_information)
+        text += information_text
+        return text
 
     def get_important_information(self, owner_arrived: bool = False) -> str:
         people_names = []
@@ -77,6 +89,7 @@ class DataController:
         calendar_events = self.get_calendar_events(people_names)
         all_devices_status = important_devices + calendar_events
         information_text = self.text_from_list(all_devices_status)
+
         return information_text
     
     def get_maid_information(self) -> str:
@@ -84,9 +97,7 @@ class DataController:
         return maid_messages
 
     def text_from_list(self, status_list: list) -> str:
-        now = datetime.now()
-        actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
-        text = f"\n- {actual_time_string}"
+        text = ''
         for element in status_list:
             if(element.to_text() != ""):
                 text+=f"\n"

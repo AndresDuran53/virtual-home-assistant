@@ -48,7 +48,7 @@ class DecisionMaker:
         logger.info(f"Creating message to maid.")
         maid_information = self.data_controller.get_maid_information()
         logger.info(f"[Maid Information]: {maid_information}")
-        user_input = MaidAnnouncements.format_maid_information(maid_information)
+        user_input = MaidAnnouncements.format_information(maid_information)
         return user_input
 
     def handle_owner_arriving_home(self) -> str:

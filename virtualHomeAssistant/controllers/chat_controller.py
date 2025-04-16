@@ -1,70 +1,140 @@
 from datetime import datetime
 
-class WelcomeChat():
-    intro = "please analyze the time of my systems and response with a personalized greeting, as Jarvis from Iron Man would, please read the calendar and remind us of events if necessary:"
+class BaseChat:
+
+    @staticmethod
+    def format_message(prompt: str, internal_information: str, important_information) -> str:
+        """
+        Formats a message to be sent to the assistant, dividing it into three distinct sections:
+
+        Args:
+            prompt (str): Instructions for the assistant to follow.
+            internal_information (str): Contextual information for internal use only.
+            important_information (str): Information to be shared directly with the user.
+
+        Returns:
+            str: A formatted message combining the three sections in a structured way.
+        """
+
+        sections = [f"[Automatic system notification]\n--- Instructions ---\n{prompt}\n"]
+
+        if internal_information:
+            sections.append(f"--- Internal Information (for assistant's context only) ---\n{internal_information}\n")
+        
+        if important_information:
+            sections.append(f"--- Important Information (to share with the user) ---\n{important_information}\n")
+
+        return "\n".join(sections).strip()
+
+    @staticmethod
+    def format_names(names: list[str]) -> str:
+        """
+        Formats a list of names into a readable string.
+
+        Args:
+            names (list[str]): List of names.
+
+        Returns:
+            str: Formatted names.
+        """
+        if len(names) == 1:
+            return names[0]
+        return ', '.join(names[:-1]) + ' and ' + names[-1]
+
+
+class WelcomeChat(BaseChat):
+    INTRO = "Please analyze the time of my systems and respond with a personalized greeting, as Jarvis from Iron Man would. Please read the calendar and remind us of events if necessary."
 
     @classmethod
-    def format_welcome_text(cls, people_arriving_names: list[str], text_device_information: str):       
+    def format_welcome_text(cls, people_arriving_names: list[str], text_device_information: str) -> str:
         people_meeting_text = cls.get_arriving_format(people_arriving_names)
         intro_with_names = cls.people_intro(people_arriving_names)
-        final_text = f"{intro_with_names}{people_meeting_text}\n{text_device_information}"
-        return final_text
-    
-    @classmethod
-    def people_intro(cls, people_arriving_names: list[str]):
-        if len(people_arriving_names) == 1:
-            return f"[Automatic system notification] Hello Assistant, {people_arriving_names[0]} just arrived home, "+cls.intro
-        else:
-            all_names = ', '.join(people_arriving_names[:-1]) + ' and ' + people_arriving_names[-1]
-            return f"[Automatic system notification] Hello Assistant, {all_names} just arrived home, "+cls.intro
-    
-    @classmethod
-    def get_arriving_format(cls, people_arriving_names: list[str]):
-        final_text = "\nPeople you should greet:"
-        for person_name in people_arriving_names:
-            final_text += f"\n- {person_name}"
-        return final_text
-    
-
-class WelcomeGuestChat():
-    intro = "[Automatic system notification] A guest has enter the house, let them know that you already notify me and that everything is being recorder."
+        return f"{intro_with_names}{people_meeting_text}\n{text_device_information}"
 
     @classmethod
-    def format_welcome_text(cls, owners_at_home: list[str]):
-        if(len(owners_at_home)>0):
-            text = "Hello Assistant, "
-            if(len(owners_at_home)==1):
-                text += f"I'm {owners_at_home[0]}, and a guest has come to my house parking a car in my garage, I need you to notify me about it"
-            else:
-                text += f"We are {owners_at_home[0]} and {owners_at_home[1]}, we are at home and a guest has come to our house parking a car in our garage, we need you to notify us about it"
-            text += " in a kind and respectful way, as Jarvis from Iron Man would do it but be concise and short on your answer."
-            return text
-        else:
-            return cls.intro
+    def people_intro(cls, people_arriving_names: list[str]) -> str:
+        names = cls.format_names(people_arriving_names)
+        return f"[Automatic system notification] Hello Assistant, {names} just arrived home. {cls.INTRO}"
 
-    
-class GoodMorningChat():
-    meeting_description = "[Automatic system notification] Instruction to assistant: Please generate a personalized greeting for Andrés and Tammy in Spanish, they are just waking up, analyzes the system time and greets accordingly. Include the current time, temperature, and any relevant events or tasks on the day. Keep the response friendly and natural by acting as our smart and clever butler, don't hold back from making smart and clever comments with the information provided below, but be quick and concise when doing them."
-    @classmethod
-    def format_good_morning_text(cls, text_device_information: str):
-        final_text = f"{cls.meeting_description}\n{text_device_information}"
-        return final_text
+    @staticmethod
+    def get_arriving_format(people_arriving_names: list[str]) -> str:
+        return "\nPeople you should greet:\n" + "\n".join(f"- {name}" for name in people_arriving_names)
 
-    
-class FeedCatsReminder():
-    message_default = "[Automatic system notification] Now it's time to feed the cats, respond with a short custom reminder for Tammy that it's time to feed the cats."
+
+class WelcomeGuestChat(BaseChat):
+    INTRO = "[Automatic system notification] A guest has entered the house. Let them know that you have already notified me and that everything is being recorded."
 
     @classmethod
-    def message(cls):
-        now = datetime.now() 
+    def format_welcome_text(cls, owners_at_home: list[str]) -> str:
+        if not owners_at_home:
+            return cls.INTRO
+        owners_text = cls.format_owners(owners_at_home)
+        return (
+            f"Hello Assistant, {owners_text}, and a guest has come to our house parking a car in our garage. "
+            "We need you to notify us about it in a kind and respectful way, as Jarvis from Iron Man would do it, "
+            "but be concise and short in your answer."
+        )
+
+    @staticmethod
+    def format_owners(owners: list[str]) -> str:
+        if len(owners) == 1:
+            return f"I'm {owners[0]}"
+        return f"We are {owners[0]} and {owners[1]}"
+
+
+class GoodMorningChat(BaseChat):
+    MEETING_DESCRIPTION = (
+        "Please generate a personalized greeting for Andrés and Tammy in Spanish. "
+        "They are just waking up. Analyze the system time and greet accordingly. Include any relevant events or tasks for the day. "
+        "Keep the response friendly and natural by acting as our smart and clever butler, as Jarvis from Iron Man would. Don't hold back from making smart and clever comments with the information provided below, "
+        "but be quick and concise when doing so."
+    )
+
+    @classmethod
+    def format_good_morning_text(cls, text_device_information: str) -> str:
+        """
+        Formats a good morning message with device information.
+
+        Args:
+            text_device_information (str): Information about the device.
+
+        Returns:
+            str: The formatted good morning message.
+        """
+        return cls.format_message(cls.MEETING_DESCRIPTION, "", text_device_information)
+
+
+class FeedCatsReminder(BaseChat):
+    MESSAGE_DEFAULT = "[Automatic system notification] Now it's time to feed the cats. Respond with a short custom reminder for Tammy that it's time to feed the cats."
+
+    @classmethod
+    def message(cls) -> str:
+        """
+        Generates a reminder message to feed the cats.
+
+        Returns:
+            str: The formatted reminder message.
+        """
+        now = datetime.now()
         actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
-        final_text = f"- {actual_time_string} \n -{cls.message_default}"
-        return final_text
+        return f"{actual_time_string}\n{cls.MESSAGE_DEFAULT}"
 
-class MaidAnnouncements():
-    intro = "[Automatic system notification] Heydi has arrived to help us with the cleaning. She is who helps with certain household tasks. You must reply with a greeting to her first, be very careful and respectful in the way you speak to her. Tell her the following information:"
-    
+
+class MaidAnnouncements(BaseChat):
+    INTRO = (
+        "[Automatic system notification] Heydi has arrived to help us with the cleaning. She helps with certain household tasks. "
+        "You must reply with a greeting to her first. Be very careful and respectful in the way you speak to her. Tell her the following information:"
+    )
+
     @classmethod
-    def format_maid_information(cls, maid_information) -> str:
-        final_test = f"{cls.intro} \n{maid_information}"
-        return final_test
+    def format_information(cls, maid_information: str) -> str:
+        """
+        Formats a message with information for the maid.
+
+        Args:
+            maid_information (str): Information to provide to the maid.
+
+        Returns:
+            str: The formatted message.
+        """
+        return f"{cls.INTRO}\n{maid_information}"
