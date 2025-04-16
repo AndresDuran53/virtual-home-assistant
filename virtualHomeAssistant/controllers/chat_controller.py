@@ -41,6 +41,26 @@ class BaseChat:
             return names[0]
         return ', '.join(names[:-1]) + ' and ' + names[-1]
 
+class GoodMorningChat(BaseChat):
+    MEETING_DESCRIPTION = (
+        "Please generate a personalized greeting for Andrés and Tammy in Spanish. "
+        "They are just waking up. Analyze the system time and greet accordingly. Include any relevant events or tasks for the day. "
+        "Keep the response friendly and natural by acting as our smart and clever butler, as Jarvis from Iron Man would. Don't hold back from making smart and clever comments with the information provided below, "
+        "but be quick and concise when doing so."
+    )
+
+    @classmethod
+    def format_good_morning_text(cls, internal_information: str,  text_device_information: str) -> str:
+        """
+        Formats a good morning message with device information.
+
+        Args:
+            text_device_information (str): Information about the device.
+
+        Returns:
+            str: The formatted good morning message.
+        """
+        return cls.format_message(cls.MEETING_DESCRIPTION, internal_information, text_device_information)
 
 class WelcomeChat(BaseChat):
     INTRO = "Please analyze the time of my systems and respond with a personalized greeting, as Jarvis from Iron Man would. Please read the calendar and remind us of events if necessary."
@@ -80,29 +100,6 @@ class WelcomeGuestChat(BaseChat):
         if len(owners) == 1:
             return f"I'm {owners[0]}"
         return f"We are {owners[0]} and {owners[1]}"
-
-
-class GoodMorningChat(BaseChat):
-    MEETING_DESCRIPTION = (
-        "Please generate a personalized greeting for Andrés and Tammy in Spanish. "
-        "They are just waking up. Analyze the system time and greet accordingly. Include any relevant events or tasks for the day. "
-        "Keep the response friendly and natural by acting as our smart and clever butler, as Jarvis from Iron Man would. Don't hold back from making smart and clever comments with the information provided below, "
-        "but be quick and concise when doing so."
-    )
-
-    @classmethod
-    def format_good_morning_text(cls, text_device_information: str) -> str:
-        """
-        Formats a good morning message with device information.
-
-        Args:
-            text_device_information (str): Information about the device.
-
-        Returns:
-            str: The formatted good morning message.
-        """
-        return cls.format_message(cls.MEETING_DESCRIPTION, "", text_device_information)
-
 
 class FeedCatsReminder(BaseChat):
     MESSAGE_DEFAULT = "[Automatic system notification] Now it's time to feed the cats. Respond with a short custom reminder for Tammy that it's time to feed the cats."

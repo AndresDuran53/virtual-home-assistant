@@ -29,9 +29,10 @@ class DecisionMaker:
 
     def create_good_morning_message(self) -> str:
         logger.info(f"Creating good morning message.")
+        internal_information_text = self.data_controller.get_internal_information()
         important_information_text = self.data_controller.get_important_information()
         logger.info(f"[Home Information]: {important_information_text}")
-        user_input = GoodMorningChat.format_good_morning_text(important_information_text)
+        user_input = GoodMorningChat.format_good_morning_text(internal_information_text, important_information_text)
         return user_input
 
     def create_welcome_chat(self) -> str:
