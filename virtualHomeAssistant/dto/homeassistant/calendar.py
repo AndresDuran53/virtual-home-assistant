@@ -33,8 +33,8 @@ class Calendar():
     @classmethod
     def from_dict(cls, data: dict):
         return Calendar(
-            data.get("entity_id",None),
-            data.get("owner",None)
+            data.get("entity_id",""),
+            data.get("owner","")
         )
     
     @classmethod

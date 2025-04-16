@@ -6,7 +6,7 @@ class DatetimeRegister(Entity):
     ignoring_until_minutes_ago: int
 
     def __init__(self, entity_id: str, name: str, state: str = "", ignoring_until_minutes_ago: str = "0"):
-        super().__init__(entity_id, name, state)
+        super().__init__(entity_id, name, state, [], "important")
         self.set_ignoring_times(ignoring_until_minutes_ago)
 
     def set_ignoring_times(self, ignoring_until_minutes_ago: str):
@@ -43,10 +43,10 @@ class DatetimeRegister(Entity):
     @classmethod
     def from_dict(cls, data: dict):
         return DatetimeRegister(
-            data.get("entity_id",None),
-            data.get("name",None),
-            data.get("state",None),
-            data.get("ignoringTime",None)
+            data.get("entity_id",""),
+            data.get("name",""),
+            data.get("state",""),
+            data.get("ignoringTime","0")
         )
     
     @classmethod

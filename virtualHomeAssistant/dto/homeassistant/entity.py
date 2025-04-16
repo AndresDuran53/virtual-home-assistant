@@ -11,11 +11,12 @@ class Entity():
     unit:str
     ignoring_states: list[str]
 
-    def __init__(self, entity_id: str, name: str, state: str = '', ignoring_states: list[str] = []):
+    def __init__(self, entity_id: str, name: str, state: str = '', ignoring_states: list[str] = [], visibility: str = 'normal'):
         self.entity_id = entity_id
         self.name = name
         self.set_state(state)
         self.set_ignoring_states(ignoring_states)
+        self.visibility = visibility
 
     def set_state(self, state: str, unit: str = ''):
         if (not state): self.state = self.UNAVAILABLE
@@ -28,6 +29,9 @@ class Entity():
 
     def needs_to_be_ignore(self) -> bool:
         return self.state in self.ignoring_states
+    
+    def get_visibility(self) -> str:
+        return self.visibility
 
     def to_text(self) -> str:
         name = self.name
@@ -69,7 +73,8 @@ class Entity():
                 entity_id,
                 data.get("name",entity_id),
                 data.get("state",""),
-                ignoring_states = data.get("ignoringStates", [])
+                ignoring_states = data.get("ignoringStates", []),
+                visibility = data.get("visibility", "normal")
             )
 
     @classmethod

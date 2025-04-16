@@ -5,8 +5,8 @@ class BinarySensor(Sensor):
     offValue: str
     onValue: str
 
-    def __init__(self, entity_id: str, name: str, state: str = '', ignoring_states: list[str] = [], offValue = 'off', onValue = 'on'):
-        super().__init__(entity_id, name, state, ignoring_states)
+    def __init__(self, entity_id: str, name: str, state: str = '', ignoring_states: list[str] = [], visibility: str = 'normal', offValue = 'off', onValue = 'on'):
+        super().__init__(entity_id, name, state, ignoring_states, visibility)
         self.offValue = offValue
         self.onValue = onValue
 
@@ -27,6 +27,7 @@ class BinarySensor(Sensor):
         name = data.get("name",entity_id)
         state = data.get("state","")
         ignoring_states = data.get("ignoringStates", [])
+        visibility = data.get("visibility", "normal")
         offValue = data.get("offValue", "off")
         onValue = data.get("onValue", "on")
         if(entity_id and name and offValue and onValue):
@@ -35,6 +36,7 @@ class BinarySensor(Sensor):
                 name,
                 state,
                 ignoring_states,
+                visibility,
                 offValue,
                 onValue
             )
