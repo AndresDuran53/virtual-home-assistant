@@ -64,8 +64,8 @@ class GoodMorningChat(BaseChat):
 
 class WelcomeChat(BaseChat):
     MEETING_DESCRIPTION = (
-        "Please analyze the time of my systems and respond with a personalized greeting, as Jarvis from Iron Man would. "
-        "Please read the calendar and remind us of events if necessary. Include the names of the people arriving and any relevant device information."
+        "Please analyze the time of the systems and respond with a personalized greeting, as Jarvis from Iron Man would. "
+        "Please read the calendar and remind them of events if necessary. Include the names of the people arriving and any relevant device information."
     )
 
     @classmethod
@@ -81,7 +81,7 @@ class WelcomeChat(BaseChat):
             str: The formatted welcome message.
         """
         people_names = cls.format_names(people_arriving_names)
-        internal_information = f"People arriving: {people_names}"
+        internal_information = f"Arriving People you should greet: {people_names}"
         return cls.format_message(cls.MEETING_DESCRIPTION, internal_information, text_device_information)
 
 class WelcomeGuestChat(BaseChat):
