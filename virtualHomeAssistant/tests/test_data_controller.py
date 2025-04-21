@@ -30,6 +30,7 @@ def test_people_information(data_controller:DataController):
     people_information: list[Person] = data_controller.get_people_information()
     for people in people_information:
         print(people.get_information())
+        print(f"just_get_home: {people.just_get_home()}")
 
 def test_calendars_events(data_controller:DataController):
     print("\n*[TEST] test_calendars_events")
