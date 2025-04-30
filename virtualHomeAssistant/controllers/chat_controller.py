@@ -54,6 +54,7 @@ class GoodMorningChat(BaseChat):
         Formats a good morning message with device information.
 
         Args:
+            internal_information (str): Contextual information for internal use only.
             text_device_information (str): Information about the device.
 
         Returns:
@@ -69,20 +70,22 @@ class WelcomeChat(BaseChat):
     )
 
     @classmethod
-    def format_welcome_text(cls, people_arriving_names: list[str], text_device_information: str) -> str:
+    def format_welcome_text(cls, people_arriving_names: list[str], internal_information: str, important_information: str) -> str:
         """
         Formats a welcome message for people arriving.
 
         Args:
             people_arriving_names (list[str]): Names of people arriving.
-            text_device_information (str): Information about the device.
+            internal_information (str): Contextual information for internal use only.
+            important_information (str): Important information about the device.
 
         Returns:
             str: The formatted welcome message.
         """
         people_names = cls.format_names(people_arriving_names)
-        internal_information = f"The following person or people have just entered the house and should be greeted: {people_names}"
-        return cls.format_message(cls.MEETING_DESCRIPTION, internal_information, text_device_information)
+        internal_information_complete = f"- The following person or people have just entered the house and should be greeted: {people_names}"
+        internal_information_complete += f"\n{internal_information}"
+        return cls.format_message(cls.MEETING_DESCRIPTION, internal_information, important_information)
 
 class WelcomeGuestChat(BaseChat):
     MEETING_DESCRIPTION = (

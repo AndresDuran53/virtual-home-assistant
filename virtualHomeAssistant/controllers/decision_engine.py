@@ -55,9 +55,11 @@ class DecisionMaker:
     def handle_owner_arriving_home(self) -> str:
         people_arriving_names = self.data_controller.get_people_names_arriving_home()
         logger.info(f"[People Arriving]: {[person_name for person_name in people_arriving_names]}")
+        internal_information_text = self.data_controller.get_internal_information()
+        logger.info(f"[Internal Information]: {internal_information_text}")
         important_information_text = self.data_controller.get_important_information(True)
-        logger.info(f"[Home Information]: {important_information_text}")
-        user_input = WelcomeChat.format_welcome_text(people_arriving_names, important_information_text)
+        logger.info(f"[Important Information]: {important_information_text}")
+        user_input = WelcomeChat.format_welcome_text(people_arriving_names, internal_information_text, important_information_text)
         return user_input
         
     def handle_guest_arrived(self) -> str:
