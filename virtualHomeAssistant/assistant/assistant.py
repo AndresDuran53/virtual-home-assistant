@@ -29,7 +29,7 @@ class Assistant:
             self.start_conversation(text_to_send)
 
     def start_conversation(self, user_input: str):
-        independent_message = True
+        independent_message = False
         gpt3_response = self.conversation_processor.send_message(user_input, independent_message)
         if(gpt3_response):
             self.logger.info("Sending response to speakers via mqtt.")
