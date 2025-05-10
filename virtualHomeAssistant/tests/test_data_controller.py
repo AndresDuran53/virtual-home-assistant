@@ -16,21 +16,20 @@ def main():
     data_config = ConfigurationReader.read_config_file()
     data_controller = DataController(data_config)
     test_people_information(data_controller)
-    test_calendars_events(data_controller)
-    test_sensors_information(data_controller)
-    test_general_devices_information(data_controller)
+    #test_calendars_events(data_controller)
+    #test_sensors_information(data_controller)
+    #test_general_devices_information(data_controller)
     test_people_arriving_home(data_controller)
-    test_datetime_register(data_controller)
-    test_important_devices(data_controller)
-    test_internal_information(data_controller)
-    test_important_information(data_controller)
+    #test_datetime_register(data_controller)
+    #test_important_devices(data_controller)
+    #test_internal_information(data_controller)
+    #test_important_information(data_controller)
 
 def test_people_information(data_controller:DataController):
     print("\n*[TEST] test_people_information")
     people_information: list[Person] = data_controller.get_people_information()
     for people in people_information:
         print(people.get_information())
-        print(f"just_get_home: {people.just_get_home()}")
 
 def test_calendars_events(data_controller:DataController):
     print("\n*[TEST] test_calendars_events")
@@ -64,7 +63,7 @@ def test_datetime_register(data_controller:DataController):
 
 def test_important_devices(data_controller:DataController):
     print("\n*[TEST] test_important_devices")
-    important_devices = data_controller.get_important_devices()
+    important_devices = data_controller.get_all_devices(visibility='important')
     for device in important_devices:
         print(device.to_text())
 
@@ -73,10 +72,16 @@ def test_internal_information(data_controller:DataController):
     internal_information = data_controller.get_internal_information()
     print(internal_information)
 
+    print("\n*[TEST] test_internal_information 2")
+    important_devices = data_controller.get_all_devices(visibility='internal')
+    for device in important_devices:
+        print(device.to_text())
+
 def test_important_information(data_controller:DataController):
     print("\n*[TEST] test_important_information")
     important_information = data_controller.get_important_information()
     print(important_information)
+    
 
 if __name__ == "__main__":
     main()
