@@ -81,16 +81,33 @@ class DataController:
         result = len(people_names_arriving_home) > 0
         return result
     
-    def get_internal_information(self) -> str:
+    def get_people_max_time_outside_text(self) -> str:
+        people_time_outside_text = ""
+        people_arriving_home = self.get_people_arriving_home()
+        if people_arriving_home:
+            person_with_max_time = max(
+                people_arriving_home,
+                key=lambda person: person.seconds_outside()
+            )
+            max_time = person_with_max_time.calculate_total_time_outside()
+            people_time_outside_text = (
+                f"\n- Time people were away: {max_time}"
+            )
+        return people_time_outside_text
+    
+    def get_internal_information(self, owner_arrived: bool = False) -> str:
         now = datetime.now()
         actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
-        fina_text = f"\n- {actual_time_string}"
+        final_text = f"\n- {actual_time_string}"
 
         internal_information = self.get_all_devices(visibility='internal')
         information_text = self.text_from_list(internal_information)
+        final_text += information_text
 
-        fina_text += information_text
-        return fina_text
+        if owner_arrived:
+            final_text += self.get_people_max_time_outside_text()
+
+        return final_text
 
     def get_important_information(self, owner_arrived: bool = False) -> str:
         people_names = []

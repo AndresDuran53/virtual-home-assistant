@@ -84,7 +84,7 @@ class WelcomeChat(BaseChat):
         """
         people_names = cls.format_names(people_arriving_names)
         internal_information_complete = f"- The following person or people have just entered the house and should be greeted: {people_names}"
-        internal_information_complete += f"\n{internal_information}"
+        internal_information_complete += f"{internal_information}"
         return cls.format_message(cls.MEETING_DESCRIPTION, internal_information_complete, important_information)
 
 class WelcomeGuestChat(BaseChat):

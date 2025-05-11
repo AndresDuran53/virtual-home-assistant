@@ -12,8 +12,9 @@ from controllers.decision_engine import DecisionMaker
 def main():
     data_config = ConfigurationReader.read_config_file()
     decision_maker = DecisionMaker(data_config)
-    test_create_good_morning_message(decision_maker)
+    #test_create_good_morning_message(decision_maker)
     #test_create_welcome_chat_car(decision_maker)
+    test_create_welcome_chat_owner(decision_maker)
     #test_create_welcome_chat_person(decision_maker)
     #test_create_cats_reminder(decision_maker)
 
@@ -26,6 +27,11 @@ def test_create_good_morning_message(decision_maker:DecisionMaker):
 def test_create_welcome_chat_car(decision_maker:DecisionMaker):
     result2 = decision_maker.evaluate_default_commands("Welcome Car")
     print(result2)
+    print("\n--------------------------------------------\n\n")
+
+def test_create_welcome_chat_owner(decision_maker:DecisionMaker):
+    result3 = decision_maker.evaluate_default_commands("Welcome Owner")
+    print(result3)
     print("\n--------------------------------------------\n\n")
 
 def test_create_welcome_chat_person(decision_maker:DecisionMaker):

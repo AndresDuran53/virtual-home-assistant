@@ -22,7 +22,7 @@ def main():
     test_people_arriving_home(data_controller)
     #test_datetime_register(data_controller)
     #test_important_devices(data_controller)
-    #test_internal_information(data_controller)
+    test_internal_information(data_controller)
     #test_important_information(data_controller)
 
 def test_people_information(data_controller:DataController):
@@ -68,14 +68,13 @@ def test_important_devices(data_controller:DataController):
         print(device.to_text())
 
 def test_internal_information(data_controller:DataController):
-    print("\n*[TEST] test_internal_information")
+    print("\n*[TEST] test_internal_information without owner arriving")
     internal_information = data_controller.get_internal_information()
     print(internal_information)
 
-    print("\n*[TEST] test_internal_information 2")
-    important_devices = data_controller.get_all_devices(visibility='internal')
-    for device in important_devices:
-        print(device.to_text())
+    print("\n*[TEST] test_internal_information with owner arriving")
+    internal_information = data_controller.get_internal_information(owner_arrived=True)
+    print(internal_information)
 
 def test_important_information(data_controller:DataController):
     print("\n*[TEST] test_important_information")

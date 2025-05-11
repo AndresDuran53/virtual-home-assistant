@@ -16,10 +16,12 @@ class DecisionMaker:
             return None
         elif text_received == "Good Morning":
             return self.create_good_morning_message()
-        elif text_received == "Welcome Car":
-            return self.create_welcome_chat()
+        elif text_received == "Welcome Owner":
+            return self.create_welcome_chat(method="owner")
         elif text_received == "Welcome Person":
-            return self.create_welcome_chat()
+            return self.create_welcome_chat(method="person")
+        elif text_received == "Welcome Car":
+            return self.create_welcome_chat(method="car")
         elif text_received == "Feed Cats Reminder":
             return self.create_cats_reminder()
         elif text_received == "Announcements to Maid":
@@ -35,10 +37,11 @@ class DecisionMaker:
         user_input = GoodMorningChat.format_good_morning_text(internal_information_text, important_information_text)
         return user_input
 
-    def create_welcome_chat(self) -> str:
+    def create_welcome_chat(self, method: str) -> str:
         logger.info(f"Creating welcoming message.")
         is_people_arriving_home = self.data_controller.is_people_arriving_home()
-        if is_people_arriving_home:
+
+        if(method == "owner" or is_people_arriving_home):
             logger.info(f"Welcoming to owner arriving.")
             return self.handle_owner_arriving_home()
         else:
@@ -55,7 +58,7 @@ class DecisionMaker:
     def handle_owner_arriving_home(self) -> str:
         people_arriving_names = self.data_controller.get_people_names_arriving_home()
         logger.info(f"[People Arriving]: {[person_name for person_name in people_arriving_names]}")
-        internal_information_text = self.data_controller.get_internal_information()
+        internal_information_text = self.data_controller.get_internal_information(True)
         logger.info(f"[Internal Information]: {internal_information_text}")
         important_information_text = self.data_controller.get_important_information(True)
         logger.info(f"[Important Information]: {important_information_text}")

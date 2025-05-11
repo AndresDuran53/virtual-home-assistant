@@ -41,7 +41,7 @@ class Person(Entity):
         else:
             return False
 
-    def just_get_home(self, minutes_to_evaluate = 10) -> bool:
+    def just_get_home(self, minutes_to_evaluate = 300) -> bool:
         is_home = self.is_home()
         if not is_home: 
             return False
@@ -55,8 +55,7 @@ class Person(Entity):
     def calculate_total_time_outside(self) -> str:
         if (not self.last_not_home_change or not self.last_changed): 
             return "No Information"
-        time_outside = self.last_changed - self.last_not_home_change
-        total_seconds = time_outside.total_seconds()
+        total_seconds = self.seconds_outside()
         if total_seconds < 3600:
             total_minutes = int(total_seconds / 60)
             text_time_outside = f"{total_minutes} minutes"
@@ -65,6 +64,13 @@ class Person(Entity):
             total_minutes = int(total_seconds/60 - (total_hours*60))
             text_time_outside = f"{total_hours} hours and {total_minutes} minutes"
         return text_time_outside
+    
+    def seconds_outside(self) -> float:
+        if (not self.last_not_home_change or not self.last_changed): 
+            return 0
+        time_outside = self.last_changed - self.last_not_home_change
+        total_seconds = time_outside.total_seconds()
+        return total_seconds
     
     def _minutes_from_last_update(self) -> float | None:
         if not self.last_changed:
