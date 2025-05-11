@@ -41,7 +41,7 @@ class Person(Entity):
         else:
             return False
 
-    def just_get_home(self, minutes_to_evaluate = 300) -> bool:
+    def just_get_home(self, minutes_to_evaluate = 10) -> bool:
         is_home = self.is_home()
         if not is_home: 
             return False
