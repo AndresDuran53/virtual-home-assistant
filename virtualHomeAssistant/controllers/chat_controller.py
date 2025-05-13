@@ -19,10 +19,10 @@ class BaseChat:
         sections = [f"[Automatic system notification]\n--- Instructions ---\n{prompt}\n"]
 
         if internal_information:
-            sections.append(f"--- Internal Information (for assistant's context only) ---\n{internal_information}\n")
+            sections.append(f"--- Internal Information (You as an assistant must analyze this information, understand it and use it only as context) ---\n{internal_information}\n")
         
         if important_information:
-            sections.append(f"--- Important Information (to share with the user) ---\n{important_information}\n")
+            sections.append(f"--- Important Information (This is the information you should share with the user based on the context you have.) ---\n{important_information}\n")
 
         return "\n".join(sections).strip()
 
@@ -117,7 +117,7 @@ class FeedCatsReminder(BaseChat):
     )
 
     @classmethod
-    def message(cls) -> str:
+    def format_reminder_text(cls, reminder_message = "") -> str:
         """
         Generates a reminder message to feed the cats.
 
@@ -127,7 +127,7 @@ class FeedCatsReminder(BaseChat):
         now = datetime.now()
         actual_time_string = now.strftime("Current system time: %A %b %d, %Y at %I:%M%p")
         internal_information = f"The current system time is {actual_time_string}."
-        return cls.format_message(cls.MEETING_DESCRIPTION, internal_information, "")
+        return cls.format_message(cls.MEETING_DESCRIPTION, internal_information, reminder_message)
 
 class MaidAnnouncements(BaseChat):
     MEETING_DESCRIPTION = (

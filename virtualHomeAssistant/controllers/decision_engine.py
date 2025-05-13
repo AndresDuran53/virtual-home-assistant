@@ -72,5 +72,5 @@ class DecisionMaker:
         return user_input
 
     def create_cats_reminder(self) -> str:
-        user_input = FeedCatsReminder.message()
+        user_input = FeedCatsReminder.format_reminder_text()
         return user_input
