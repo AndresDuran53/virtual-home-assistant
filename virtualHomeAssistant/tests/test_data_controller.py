@@ -23,7 +23,7 @@ def main():
     #test_datetime_register(data_controller)
     #test_important_devices(data_controller)
     test_internal_information(data_controller)
-    #test_important_information(data_controller)
+    test_important_information(data_controller)
 
 def test_people_information(data_controller:DataController):
     print("\n*[TEST] test_people_information")

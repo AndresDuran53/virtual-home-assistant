@@ -22,7 +22,7 @@ class BaseChat:
             sections.append(f"--- Internal Information (You as an assistant must analyze this information, understand it and use it only as context) ---\n{internal_information}\n")
         
         if important_information:
-            sections.append(f"--- Important Information (This is the information you should share with the user based on the context you have.) ---\n{important_information}\n")
+            sections.append(f"\n--- Important Information (The following information is important and you should share with the user based on the context) ---\n{important_information}\n")
 
         return "\n".join(sections).strip()
 
