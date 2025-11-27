@@ -46,9 +46,7 @@ class OpenAIGPT3:
                 
                 response = self.client.chat.completions.create(
                     model=self.model,
-                    max_tokens=self.max_tokens_per_requests_recieved,
-                    presence_penalty = 0.2,
-                    frequency_penalty = 0.5,
+                    max_completion_tokens=self.max_tokens_per_requests_recieved,
                     temperature = 0.8,
                     timeout=timeout_aux,
                     messages=conversation
