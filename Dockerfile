@@ -3,6 +3,7 @@
 FROM python:3.10-slim-buster
 
 ENV TZ="America/Costa_Rica"
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /gptAssistant
 
@@ -11,4 +12,4 @@ RUN pip3 install -r requirements_docker.txt
 
 COPY . .
 
-CMD [ "python3", "virtualHomeAssistant/main_docker.py"]
+CMD [ "python3", "-u", "virtualHomeAssistant/main_docker.py"]
