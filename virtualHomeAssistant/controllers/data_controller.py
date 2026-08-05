@@ -8,6 +8,9 @@ from dto.homeassistant.sensor import Sensor
 from dto.homeassistant.datetime_register import DatetimeRegister
 from dto.homeassistant.device import Device
 from dto.homeassistant.entity import Entity
+from utils.custom_logging import CustomLogging
+
+logger = CustomLogging("logs/assistant.log")
 
 
 class DataController:
@@ -59,6 +62,9 @@ class DataController:
     
     def get_people_at_home(self) -> list[Person]:
         people_at_home = self.people_manager.get_people_at_home()
+        for person in self.people_information:
+            source = person.presence_sensor.entity_id if person.presence_sensor else person.entity_id
+            logger.info(f"[Presence check] {person.name}: is_home={person.is_home()} (source: {source})")
         return people_at_home
     
     def get_people_names_at_home(self) -> list[str]:
@@ -69,6 +75,9 @@ class DataController:
     
     def get_people_arriving_home(self) -> list[Person]:
         people_arriving_home = self.people_manager.get_people_just_get_home()
+        for person in self.people_information:
+            source = person.presence_sensor.entity_id if person.presence_sensor else person.entity_id
+            logger.info(f"[Arrival check] {person.name}: just_arrived={person.just_get_home()} (source: {source})")
         return people_arriving_home
     
     def get_people_names_arriving_home(self) -> list[str]:

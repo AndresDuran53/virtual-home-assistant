@@ -47,6 +47,7 @@ class HomeAssistantServices:
         self.datetime_registers = DatetimeRegister.list_from_dict(datetime_registers)
         self.important_calendars = Calendar.list_from_dict(calendars)
         self.input_texts = InputText.list_from_dict(input_texts)
+        self._link_presence_sensors()
         self.update_data()
 
     def _make_request(self, endpoint: str, params: Optional[dict] = None) -> Optional[list]:
@@ -72,6 +73,12 @@ class HomeAssistantServices:
         if(result): return result
         else: return []
         
+
+    def _link_presence_sensors(self) -> None:
+        sensor_map = {s.entity_id: s for s in self.binary_sensors}
+        for person in self.person_status:
+            if person.presence_sensor_entity_id:
+                person.presence_sensor = sensor_map.get(person.presence_sensor_entity_id)
 
     def update_data(self) -> None:
         data = self.requests_general_data()
@@ -135,6 +142,8 @@ class HomeAssistantServices:
                 for sensor in self.general_devices:
                     if sensor.entity_id == entity_id:
                         sensor.set_state(state=state, unit=unit)
+
+
 
     def get_last_not_home_change(self, entity_id: Optional[str]) -> Optional[datetime | str]:
         if not entity_id:

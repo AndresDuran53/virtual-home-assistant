@@ -1,6 +1,11 @@
+from __future__ import annotations
 from datetime import datetime
+from typing import TYPE_CHECKING
 from utils.datetime_utils import datetime_from_str_person
 from dto.homeassistant.entity import Entity
+
+if TYPE_CHECKING:
+    from dto.homeassistant.binary_sensor import BinarySensor
 
 STATE_HOME = "home"
 
@@ -13,8 +18,11 @@ class Person(Entity):
                  state: str = '', 
                  last_changed: str = '', 
                  last_updated: str = '', 
-                 last_not_home_change: datetime | str = ''):
+                 last_not_home_change: datetime | str = '',
+                 presence_sensor_entity_id: str = ''):
         super().__init__(entity_id, name, state, ignoring_states=[])
+        self.presence_sensor_entity_id = presence_sensor_entity_id
+        self.presence_sensor: BinarySensor | None = None
         self.set_state(state, last_changed, last_updated, last_not_home_change)
 
     def set_state(self, state: str, last_changed: str = '', last_updated: str = '', last_not_home_change: datetime | str = ''):
@@ -36,6 +44,8 @@ class Person(Entity):
         else: self.last_not_home_change = None
     
     def is_home(self) -> bool:
+        if self.presence_sensor and self.presence_sensor.state == 'on':
+            return True
         if(self.state):
             return self.state.lower() == STATE_HOME
         else:
@@ -97,5 +107,6 @@ class Person(Entity):
             data.get("name",None),
             data.get("state",None),
             data.get("last_changed",None),
-            data.get("last_updated",None)
+            data.get("last_updated",None),
+            presence_sensor_entity_id=data.get("presence_sensor", "")
         )
